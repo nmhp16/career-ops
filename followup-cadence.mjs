@@ -12,14 +12,10 @@
  */
 
 import { readFileSync, existsSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
-
-const CAREER_OPS = dirname(fileURLToPath(import.meta.url));
-const APPS_FILE = existsSync(join(CAREER_OPS, 'data/applications.md'))
-  ? join(CAREER_OPS, 'data/applications.md')
-  : join(CAREER_OPS, 'applications.md');
-const FOLLOWUPS_FILE = join(CAREER_OPS, 'data/follow-ups.md');
+import { join } from 'path';
+import { APPS_FILE, FOLLOWUPS_FILE, ROOT } from './lib/paths.mjs';
+import { parseApplications } from './lib/tracker.mjs';
+import { normalizeStatusId } from './lib/status.mjs';
 
 
 // --- CLI args ---
@@ -39,28 +35,7 @@ const CADENCE = {
   interview_thankyou: 1,
 };
 
-// --- Status normalization (mirrors verify-pipeline.mjs) ---
-const ALIASES = {
-  'evaluada': 'evaluated', 'condicional': 'evaluated', 'hold': 'evaluated',
-  'evaluar': 'evaluated', 'verificar': 'evaluated',
-  'aplicado': 'applied', 'enviada': 'applied', 'aplicada': 'applied',
-  'applied': 'applied', 'sent': 'applied',
-  'respondido': 'responded',
-  'entrevista': 'interview',
-  'oferta': 'offer',
-  'rechazado': 'rejected', 'rechazada': 'rejected',
-  'descartado': 'discarded', 'descartada': 'discarded',
-  'cerrada': 'discarded', 'cancelada': 'discarded',
-  'no aplicar': 'skip', 'no_aplicar': 'skip', 'monitor': 'skip', 'geo blocker': 'skip',
-};
-
 const ACTIONABLE_STATUSES = ['applied', 'responded', 'interview'];
-
-function normalizeStatus(raw) {
-  const clean = raw.replace(/\*\*/g, '').trim().toLowerCase()
-    .replace(/\s+\d{4}-\d{2}-\d{2}.*$/, '').trim();
-  return ALIASES[clean] || clean;
-}
 
 // --- Date helpers ---
 function today() {
@@ -83,24 +58,7 @@ function addDays(date, days) {
 }
 
 // --- Parse applications.md ---
-function parseTracker() {
-  if (!existsSync(APPS_FILE)) return [];
-  const content = readFileSync(APPS_FILE, 'utf-8');
-  const entries = [];
-  for (const line of content.split('\n')) {
-    if (!line.startsWith('|')) continue;
-    const parts = line.split('|').map(s => s.trim());
-    if (parts.length < 9) continue;
-    const num = parseInt(parts[1]);
-    if (isNaN(num)) continue;
-    entries.push({
-      num, date: parts[2], company: parts[3], role: parts[4],
-      score: parts[5], status: parts[6], pdf: parts[7], report: parts[8],
-      notes: parts[9] || '',
-    });
-  }
-  return entries;
-}
+const parseTracker = () => parseApplications(APPS_FILE);
 
 // --- Parse follow-ups.md ---
 function parseFollowups() {
@@ -148,7 +106,7 @@ function extractContacts(notes) {
 function resolveReportPath(reportField) {
   const match = reportField.match(/\]\(([^)]+)\)/);
   if (!match) return null;
-  const fullPath = join(CAREER_OPS, match[1]);
+  const fullPath = join(ROOT, match[1]);
   return existsSync(fullPath) ? match[1] : null;
 }
 
@@ -210,7 +168,7 @@ function analyze() {
   const entries = [];
 
   for (const app of apps) {
-    const normalized = normalizeStatus(app.status);
+    const normalized = normalizeStatusId(app.status);
     if (!ACTIONABLE_STATUSES.includes(normalized)) continue;
 
     const appDate = parseDate(app.date);

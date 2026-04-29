@@ -15,4 +15,4 @@ jobs:
         with:
           release-type: simple
           package-name: career-ops
-          manifest-file: .release-please-manifest.json
+          manifest-file: .github/.release-please-manifest.json

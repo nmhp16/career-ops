@@ -48,7 +48,11 @@ console.log('\n🧪 career-ops test suite\n');
 
 console.log('1. Syntax checks');
 
-const mjsFiles = readdirSync(ROOT).filter(f => f.endsWith('.mjs'));
+const mjsFiles = [
+  ...readdirSync(ROOT).filter(f => f.endsWith('.mjs')).map(f => f),
+  ...readdirSync(join(ROOT, 'lib')).filter(f => f.endsWith('.mjs')).map(f => `lib/${f}`),
+  ...readdirSync(join(ROOT, 'providers')).filter(f => f.endsWith('.mjs')).map(f => `providers/${f}`),
+];
 for (const f of mjsFiles) {
   const result = run('node', ['--check', f]);
   if (result !== null) {
@@ -87,7 +91,7 @@ for (const { name, allowFail } of scripts) {
 console.log('\n3. Liveness classification');
 
 try {
-  const { classifyLiveness } = await import(pathToFileURL(join(ROOT, 'liveness-core.mjs')).href);
+  const { classifyLiveness } = await import(pathToFileURL(join(ROOT, 'lib/liveness.mjs')).href);
 
   const expiredChromeApply = classifyLiveness({
     finalUrl: 'https://example.com/jobs/closed-role',
@@ -200,11 +204,10 @@ const scanExtensions = ['md', 'yml', 'html', 'mjs', 'sh', 'go', 'json'];
 const allowedFiles = [
   'README.md',
   // Standard project files
-  'LICENSE', 'CITATION.cff', 'CONTRIBUTING.md',
+  'LICENSE', '.github/CITATION.cff', '.github/CONTRIBUTING.md',
   'package.json', '.github/FUNDING.yml', 'CLAUDE.md', 'go.mod', 'test-all.mjs',
-  // Community / governance files (added in v1.3.0, all legitimately reference the maintainer)
-  'CODE_OF_CONDUCT.md', 'GOVERNANCE.md', 'SECURITY.md', 'SUPPORT.md',
-  '.github/SECURITY.md',
+  // Community / governance files (all legitimately reference the maintainer)
+  '.github/CODE_OF_CONDUCT.md', 'GOVERNANCE.md', '.github/SECURITY.md', '.github/SUPPORT.md',
   // Dashboard credit string
   'dashboard/internal/ui/screens/pipeline.go',
 ];

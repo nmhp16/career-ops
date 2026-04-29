@@ -2,7 +2,7 @@
 
 Scans the configured job portals, filters by title relevance, and adds new offers to the pipeline for later evaluation.
 
-> **Note (v1.5+):** The default scanner (`scan.mjs` / `npm run scan`) is **zero-token** and only hits the public Greenhouse, Ashby, and Lever APIs directly. The Playwright/WebSearch tiers described below are the **agent** flow (executed by Claude/Codex), not what `scan.mjs` does. If a company has no Greenhouse/Ashby/Lever API, `scan.mjs` will skip it; for those cases, the agent must manually complete Tier 1 (Playwright) or Tier 3 (WebSearch).
+> **Note (v1.6+):** The default scanner (`scan.mjs` / `npm run scan`) is **zero-token** and hits public ATS APIs directly. Supported providers: **Greenhouse, Ashby, Lever, Workable, SmartRecruiters, Recruitee, Personio, Teamtailor, BambooHR, Workday**. Companies whose `careers_url` doesn't match any supported provider are written to `data/scan-skipped.tsv` for the agent flow (Tier 1/3) to pick up via Playwright/WebSearch.
 
 ## Recommended execution
 
@@ -25,55 +25,61 @@ Read `portals.yml`, which contains:
 
 ## Discovery strategy (3 tiers)
 
-### Tier 1 -- Direct Playwright (PRIMARY)
+### Tier 1 -- Direct Playwright (FALLBACK for unsupported careers pages)
 
-**For each company in `tracked_companies`:** Navigate to its `careers_url` with Playwright (`browser_navigate` + `browser_snapshot`), read ALL visible job listings, and extract title + URL of each. This is the most reliable method because:
+**For each row in `data/scan-skipped.tsv`** (companies the JS scanner couldn't auto-detect, e.g. custom careers pages on openai.com, tesla.com, bostondynamics.com): navigate to its `careers_url` with Playwright (`browser_navigate` + `browser_snapshot`), read ALL visible job listings, and extract title + URL of each. This is the only way to reach these companies because:
+- They don't expose a public ATS API
+- They use heavy JS / SPAs (custom careers pages)
 - It sees the page in real time (not cached Google results)
-- It works with SPAs (Ashby, Lever, Workday)
-- It detects new offers instantly
 - It does not depend on Google indexing
 
 **Every company MUST have `careers_url` in portals.yml.** If it doesn't, find it once, save it, and use it in future scans.
 
-### Tier 2 -- ATS APIs / Feeds (COMPLEMENTARY)
+### Tier 2 -- ATS APIs / Feeds (PRIMARY for supported providers)
 
-For companies with a public API or structured feed, use the JSON/XML response as a fast complement to Tier 1. It is faster than Playwright and reduces visual scraping errors.
+`scan.mjs` covers this tier automatically for all supported providers. Run `npm run scan` first; the agent only handles what gets written to `data/scan-skipped.tsv`.
 
-**Current support (variables in `{}`):**
-- **Greenhouse**: `https://boards-api.greenhouse.io/v1/boards/{company}/jobs`
-- **Ashby**: `https://jobs.ashbyhq.com/api/non-user-graphql?op=ApiJobBoardWithTeams`
-- **BambooHR**: list `https://{company}.bamboohr.com/careers/list`; offer detail `https://{company}.bamboohr.com/careers/{id}/detail`
-- **Lever**: `https://api.lever.co/v0/postings/{company}?mode=json`
-- **Teamtailor**: `https://{company}.teamtailor.com/jobs.rss`
-- **Workday**: `https://{company}.{shard}.myworkdayjobs.com/wday/cxs/{company}/{site}/jobs`
+**Supported providers (auto-detected from `careers_url`):**
 
-**Parsing convention by provider:**
-- `greenhouse`: `jobs[]` → `title`, `absolute_url`
-- `ashby`: GraphQL `ApiJobBoardWithTeams` with `organizationHostedJobsPageName={company}` → `jobBoard.jobPostings[]` (`title`, `id`; build the public URL if it doesn't come in the payload)
-- `bamboohr`: list `result[]` → `jobOpeningName`, `id`; build the detail URL `https://{company}.bamboohr.com/careers/{id}/detail`; to read the full JD, GET the detail and use `result.jobOpening` (`jobOpeningName`, `description`, `datePosted`, `minimumExperience`, `compensation`, `jobOpeningShareUrl`)
-- `lever`: root array `[]` → `text`, `hostedUrl` (fallback: `applyUrl`)
-- `teamtailor`: RSS items → `title`, `link`
-- `workday`: `jobPostings[]`/`jobPostings` (depending on tenant) → `title`, `externalPath` or URL built from the host
+| Provider | URL pattern | Endpoint |
+|---|---|---|
+| Greenhouse | `job-boards.greenhouse.io/{slug}` | `boards-api.greenhouse.io/v1/boards/{slug}/jobs` |
+| Ashby | `jobs.ashbyhq.com/{slug}` | `api.ashbyhq.com/posting-api/job-board/{slug}` |
+| Lever | `jobs.lever.co/{slug}` | `api.lever.co/v0/postings/{slug}` |
+| Workable | `apply.workable.com/{slug}` | `apply.workable.com/api/v3/accounts/{slug}/jobs` (POST) |
+| SmartRecruiters | `(careers\|jobs).smartrecruiters.com/{slug}` | `api.smartrecruiters.com/v1/companies/{slug}/postings` |
+| Recruitee | `{slug}.recruitee.com` | `{slug}.recruitee.com/api/offers/` |
+| Personio | `{slug}.jobs.personio.{com,de}` | `{slug}.jobs.personio.{com,de}/xml` |
+| Teamtailor | `{slug}.teamtailor.com` | `{slug}.teamtailor.com/jobs.rss` |
+| BambooHR | `{slug}.bamboohr.com` | `{slug}.bamboohr.com/careers/list` |
+| Workday | `{tenant}.wd{N}.myworkdayjobs.com/{site}` | `wday/cxs/{tenant}/{site}/jobs` (POST + paginate) |
+
+The provider registry lives at `providers/index.mjs`; each provider implements `{ detect, fetch, parse }`. Add a new provider by dropping a file into `providers/` and registering it in `index.mjs`.
 
 ### Tier 3 -- WebSearch queries (BROAD DISCOVERY)
 
 The `search_queries` with `site:` filters cover portals transversally (all of Ashby, all of Greenhouse, etc.). Useful for discovering NEW companies not yet in `tracked_companies`, but results may be stale.
 
 **Execution priority:**
-1. Tier 1: Playwright → all `tracked_companies` with `careers_url`
-2. Tier 2: API → all `tracked_companies` with `api:`
-3. Tier 3: WebSearch → all `search_queries` with `enabled: true`
+1. **Tier 2 first**: run `npm run scan` (or `node scan.mjs`). It covers every company on a supported ATS in one zero-token pass.
+2. **Tier 1 next**: read `data/scan-skipped.tsv`. For each row, Playwright-navigate the `careers_url` and extract listings.
+3. **Tier 3 last**: run `search_queries` with `enabled: true` for broad discovery of companies not yet in `tracked_companies`.
 
 The tiers are additive -- they all run, then results are merged and deduplicated.
 
 ## Workflow
 
-1. **Read configuration**: `portals.yml`
+1. **Run `npm run scan` first** -- this handles Tier 2 for every supported ATS in seconds, with zero tokens. The script:
+   - Reads `portals.yml`, `data/scan-history.tsv`, `data/applications.md`, `data/pipeline.md`
+   - Detects a provider for each enabled company in `tracked_companies`
+   - Fetches, filters, dedups, and appends new offers to `data/pipeline.md`
+   - Writes companies it couldn't auto-detect to `data/scan-skipped.tsv`
+
 2. **Read history**: `data/scan-history.tsv` → URLs already seen
 3. **Read dedup sources**: `data/applications.md` + `data/pipeline.md`
 
-4. **Tier 1 -- Playwright scan** (parallel in batches of 3-5):
-   For each company in `tracked_companies` with `enabled: true` and `careers_url` defined:
+4. **Tier 1 -- Playwright scan** of `data/scan-skipped.tsv` (parallel in batches of 3-5):
+   For each row in `data/scan-skipped.tsv` (companies the JS scanner couldn't auto-detect):
    a. `browser_navigate` to the `careers_url`
    b. `browser_snapshot` to read all job listings
    c. If the page has filters/departments, navigate the relevant sections
@@ -82,18 +88,10 @@ The tiers are additive -- they all run, then results are merged and deduplicated
    f. Accumulate into the candidate list
    g. If `careers_url` fails (404, redirect), try `scan_query` as a fallback and note that the URL needs updating
 
-5. **Tier 2 -- ATS APIs / feeds** (parallel):
-   For each company in `tracked_companies` with `api:` defined and `enabled: true`:
-   a. WebFetch the API/feed URL
-   b. If `api_provider` is defined, use its parser; if not defined, infer by domain (`boards-api.greenhouse.io`, `jobs.ashbyhq.com`, `api.lever.co`, `*.bamboohr.com`, `*.teamtailor.com`, `*.myworkdayjobs.com`)
-   c. For **Ashby**, send a POST with:
-      - `operationName: ApiJobBoardWithTeams`
-      - `variables.organizationHostedJobsPageName: {company}`
-      - GraphQL query for `jobBoardWithTeams` + `jobPostings { id title locationName employmentType compensationTierSummary }`
-   d. For **BambooHR**, the list only returns basic metadata. For each relevant item, read `id`, GET `https://{company}.bamboohr.com/careers/{id}/detail`, and extract the full JD from `result.jobOpening`. Use `jobOpeningShareUrl` as the public URL if present; otherwise use the detail URL.
-   e. For **Workday**, send a JSON POST with at least `{"appliedFacets":{},"limit":20,"offset":0,"searchText":""}` and paginate by `offset` until results are exhausted
-   f. For each job extract and normalize: `{title, url, company}`
-   g. Accumulate into the candidate list (dedup against Tier 1)
+5. **Tier 2 -- ATS APIs / feeds**: covered by `scan.mjs`. The agent does NOT need to re-run this tier manually unless `scan.mjs` itself fails.
+   - To force a single provider run: `node scan.mjs --source workday`
+   - To force a single company: `node scan.mjs --company NVIDIA`
+   - To preview without writes: `node scan.mjs --dry-run`
 
 6. **Tier 3 -- WebSearch queries** (parallel where possible):
    For each query in `search_queries` with `enabled: true`:

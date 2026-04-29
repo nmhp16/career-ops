@@ -15,39 +15,14 @@
  */
 
 import { readFileSync, readdirSync, existsSync, mkdirSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
-
-const CAREER_OPS = dirname(fileURLToPath(import.meta.url));
-// Support both layouts: data/applications.md (boilerplate) and applications.md (original)
-const APPS_FILE = existsSync(join(CAREER_OPS, 'data/applications.md'))
-  ? join(CAREER_OPS, 'data/applications.md')
-  : join(CAREER_OPS, 'applications.md');
-const ADDITIONS_DIR = join(CAREER_OPS, 'batch/tracker-additions');
-const REPORTS_DIR = join(CAREER_OPS, 'reports');
-const STATES_FILE = existsSync(join(CAREER_OPS, 'templates/states.yml'))
-  ? join(CAREER_OPS, 'templates/states.yml')
-  : join(CAREER_OPS, 'states.yml');
+import { join } from 'path';
+import { APPS_FILE, ADDITIONS_DIR, REPORTS_DIR, DATA_DIR, ROOT } from './lib/paths.mjs';
+import { parseApplications } from './lib/tracker.mjs';
+import { normalizeStatusId } from './lib/status.mjs';
 
 // Ensure required directories exist (fresh setup)
-mkdirSync(join(CAREER_OPS, 'data'), { recursive: true });
+mkdirSync(DATA_DIR, { recursive: true });
 mkdirSync(REPORTS_DIR, { recursive: true });
-
-const CANONICAL_STATUSES = [
-  'evaluated', 'applied', 'responded', 'interview',
-  'offer', 'rejected', 'discarded', 'skip',
-];
-
-const ALIASES = {
-  'evaluada': 'evaluated', 'condicional': 'evaluated', 'hold': 'evaluated', 'evaluar': 'evaluated', 'verificar': 'evaluated',
-  'aplicado': 'applied', 'enviada': 'applied', 'aplicada': 'applied', 'applied': 'applied', 'sent': 'applied',
-  'respondido': 'responded',
-  'entrevista': 'interview',
-  'oferta': 'offer',
-  'rechazado': 'rejected', 'rechazada': 'rejected',
-  'descartado': 'discarded', 'descartada': 'discarded', 'cerrada': 'discarded', 'cancelada': 'discarded',
-  'no aplicar': 'skip', 'no_aplicar': 'skip', 'monitor': 'skip', 'geo blocker': 'skip',
-};
 
 let errors = 0;
 let warnings = 0;
@@ -62,44 +37,24 @@ if (!existsSync(APPS_FILE)) {
   console.log('   The file will be created when you evaluate your first offer.\n');
   process.exit(0);
 }
-const content = readFileSync(APPS_FILE, 'utf-8');
-const lines = content.split('\n');
-
-const entries = [];
-for (const line of lines) {
-  if (!line.startsWith('|')) continue;
-  const parts = line.split('|').map(s => s.trim());
-  if (parts.length < 9) continue;
-  const num = parseInt(parts[1]);
-  if (isNaN(num)) continue;
-  entries.push({
-    num, date: parts[2], company: parts[3], role: parts[4],
-    score: parts[5], status: parts[6], pdf: parts[7], report: parts[8],
-    notes: parts[9] || '',
-  });
-}
+const entries = parseApplications(APPS_FILE);
+const lines = readFileSync(APPS_FILE, 'utf-8').split('\n');
 
 console.log(`\n📊 Checking ${entries.length} entries in applications.md\n`);
 
 // --- Check 1: Canonical statuses ---
 let badStatuses = 0;
 for (const e of entries) {
-  const clean = e.status.replace(/\*\*/g, '').trim().toLowerCase();
-  // Strip trailing dates
-  const statusOnly = clean.replace(/\s+\d{4}-\d{2}-\d{2}.*$/, '').trim();
-
-  if (!CANONICAL_STATUSES.includes(statusOnly) && !ALIASES[statusOnly]) {
+  if (normalizeStatusId(e.status) === null) {
     error(`#${e.num}: Non-canonical status "${e.status}"`);
     badStatuses++;
   }
 
-  // Check for markdown bold in status
   if (e.status.includes('**')) {
     error(`#${e.num}: Status contains markdown bold: "${e.status}"`);
     badStatuses++;
   }
 
-  // Check for dates in status
   if (/\d{4}-\d{2}-\d{2}/.test(e.status)) {
     error(`#${e.num}: Status contains date: "${e.status}" — dates go in date column`);
     badStatuses++;
@@ -129,7 +84,7 @@ let brokenReports = 0;
 for (const e of entries) {
   const match = e.report.match(/\]\(([^)]+)\)/);
   if (!match) continue;
-  const reportPath = join(CAREER_OPS, match[1]);
+  const reportPath = join(ROOT, match[1]);
   if (!existsSync(reportPath)) {
     error(`#${e.num}: Report not found: ${match[1]}`);
     brokenReports++;

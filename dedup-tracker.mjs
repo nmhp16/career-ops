@@ -10,44 +10,36 @@
  */
 
 import { readFileSync, writeFileSync, copyFileSync, existsSync, mkdirSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { APPS_FILE, DATA_DIR } from './lib/paths.mjs';
+import { parseScore, parseAppLine } from './lib/tracker.mjs';
+import { normalizeStatusId } from './lib/status.mjs';
 
-const CAREER_OPS = dirname(fileURLToPath(import.meta.url));
-// Support both layouts: data/applications.md (boilerplate) and applications.md (original)
-const APPS_FILE = existsSync(join(CAREER_OPS, 'data/applications.md'))
-  ? join(CAREER_OPS, 'data/applications.md')
-  : join(CAREER_OPS, 'applications.md');
 const DRY_RUN = process.argv.includes('--dry-run');
 
-// Ensure required directories exist (fresh setup)
-mkdirSync(join(CAREER_OPS, 'data'), { recursive: true });
+mkdirSync(DATA_DIR, { recursive: true });
 
-// Status advancement order (higher = more advanced in pipeline)
-// Aplicado > Rechazado because active application > terminal state
-const STATUS_RANK = {
-  // English canonicals (states.yml labels)
-  'skip': 0,
-  'discarded': 0,
-  'rejected': 1,
-  'evaluated': 2,
-  'applied': 3,
-  'responded': 4,
-  'interview': 5,
-  'offer': 6,
-  // Spanish aliases — kept for backwards compat with existing tracker data
-  'no_aplicar': 0,
-  'no aplicar': 0,
-  'descartado': 0,
-  'descartada': 0,
-  'rechazado': 1,  // Terminal — below active states
-  'rechazada': 1,
-  'evaluada': 2,
-  'aplicado': 3,
-  'respondido': 4,
-  'entrevista': 5,
-  'oferta': 6,
+// Status advancement rank (higher = further down the pipeline). Used to
+// preserve the most advanced status when collapsing duplicates: e.g. if a
+// duplicate has Interview but the keeper has Applied, promote the keeper
+// to Interview rather than losing the progress.
+//
+// `applied` > `rejected` because an active application is more advanced
+// than a terminal state.
+const STATUS_RANK_BY_ID = {
+  skip: 0,
+  discarded: 0,
+  rejected: 1,
+  evaluated: 2,
+  applied: 3,
+  responded: 4,
+  interview: 5,
+  offer: 6,
 };
+
+function statusRank(rawStatus) {
+  const id = normalizeStatusId(rawStatus);
+  return id ? (STATUS_RANK_BY_ID[id] ?? 0) : 0;
+}
 
 function normalizeCompany(name) {
   return name.toLowerCase()
@@ -93,30 +85,6 @@ function roleMatch(a, b) {
   const ratio = overlap.length / smaller;
 
   return overlap.length >= 2 && ratio >= 0.6;
-}
-
-function parseScore(s) {
-  const m = s.replace(/\*\*/g, '').match(/([\d.]+)/);
-  return m ? parseFloat(m[1]) : 0;
-}
-
-function parseAppLine(line) {
-  const parts = line.split('|').map(s => s.trim());
-  if (parts.length < 9) return null;
-  const num = parseInt(parts[1]);
-  if (isNaN(num)) return null;
-  return {
-    num,
-    date: parts[2],
-    company: parts[3],
-    role: parts[4],
-    score: parts[5],
-    status: parts[6],
-    pdf: parts[7],
-    report: parts[8],
-    notes: parts[9] || '',
-    raw: line,
-  };
 }
 
 // Read
@@ -179,10 +147,10 @@ for (const [company, companyEntries] of groups) {
     const keeper = cluster[0];
 
     // Check if any removed entry has more advanced status
-    let bestStatusRank = STATUS_RANK[keeper.status.toLowerCase()] || 0;
+    let bestStatusRank = statusRank(keeper.status);
     let bestStatus = keeper.status;
     for (let k = 1; k < cluster.length; k++) {
-      const rank = STATUS_RANK[cluster[k].status.toLowerCase()] || 0;
+      const rank = statusRank(cluster[k].status);
       if (rank > bestStatusRank) {
         bestStatusRank = rank;
         bestStatus = cluster[k].status;

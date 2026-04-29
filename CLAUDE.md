@@ -66,7 +66,7 @@ AI-powered job search automation built on Claude Code: pipeline tracking, offer 
 | `data/follow-ups.md` | Follow-up history tracker |
 | `scan.mjs` | Zero-token portal scanner — hits Greenhouse/Ashby/Lever APIs directly, zero LLM cost |
 | `check-liveness.mjs` | Job posting liveness checker |
-| `liveness-core.mjs` | Shared liveness logic (expired signals win over generic Apply text) |
+| `lib/liveness.mjs` | Shared liveness logic (expired signals win over generic Apply text) |
 | `reports/` | Evaluation reports (format: `{###}-{company-slug}-{YYYY-MM-DD}.md`). Blocks A-F + G (Posting Legitimacy). Header includes `**Legitimacy:** {tier}`. |
 
 ### OpenCode Commands
@@ -274,10 +274,10 @@ This system is designed to be customized by YOU (AI Agent). When the user asks y
 
 ## Community and Governance
 
-- **Code of Conduct**: Contributor Covenant 2.1 with enforcement actions (see `CODE_OF_CONDUCT.md`)
+- **Code of Conduct**: Contributor Covenant 2.1 with enforcement actions (see `.github/CODE_OF_CONDUCT.md`)
 - **Governance**: BDFL model with contributor ladder — Participant → Contributor → Triager → Reviewer → Maintainer (see `GOVERNANCE.md`)
-- **Security**: private vulnerability reporting via email (see `SECURITY.md`)
-- **Support**: help questions go to Discord/Discussions, not issues (see `SUPPORT.md`)
+- **Security**: private vulnerability reporting via email (see `.github/SECURITY.md`)
+- **Support**: help questions go to Discord/Discussions, not issues (see `.github/SUPPORT.md`)
 - **Discord**: https://discord.gg/8pRpHETxa4
 
 ## Stack and Conventions
