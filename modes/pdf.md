@@ -14,10 +14,23 @@
 8. Reorder experience bullets by JD relevance
 9. Inject JD keywords naturally into skills, experience, and projects (NEVER invent)
 10. Generate complete HTML from template + tailored content
-11. Write HTML to `/tmp/cv-candidate-{company}.html`
-12. Run: `node generate-pdf.mjs /tmp/cv-candidate-{company}.html output/cv-candidate-{company}-{YYYY-MM-DD}.pdf --format={letter|a4}`
-13. **Verify & self-correct** (see "Post-generation Verification" below) — MANDATORY before reporting success
-14. Report: PDF path, page count, keyword coverage, and whether any auto-corrections were applied
+11. **Apply the anti-AI-tells rules from `modes/_shared.md` ("Professional Writing & ATS Compatibility") to every bullet.** Mandatory before writing the HTML to disk: scrub em-dashes from body text, rewrite arrow-flow notation as plain English, drop buzzword closers, drop version numbers from skills, no duplicates across skill categories, etc. Run the pre-flight check listed at the bottom of that section.
+
+11a. **Trust but don't rely on the deterministic checker.** `generate-pdf.mjs` runs a content-quality scan that fails the build (exit 3) when it finds em-dashes / arrows / weak openers / version numbers in skills / duplicates / vague catch-alls / dangling adjectives. Pass-through means *the easy stuff is clean* -- it does NOT mean the resume is good. You still must do step 14b below.
+12. Write HTML to `/tmp/cv-candidate-{company}.html`
+13. Run: `node generate-pdf.mjs /tmp/cv-candidate-{company}.html output/cv-candidate-{company}-{YYYY-MM-DD}.pdf --format={letter|a4}`
+14. **Verify & self-correct** (see "Post-generation Verification" below) — MANDATORY before reporting success.
+14a. **Read `RESULT:` JSON from generate-pdf.mjs.** If `ok` is false, fix and rerun. If `content_warnings` is non-empty, fix them in the HTML and rerun -- they are not blocking but indicate sloppy output.
+14b. **Mandatory qualitative re-read pass (you, not the script).** After the deterministic checker passes, re-read the personalized HTML one more time with the following checklist. Treat this as a separate code review you would run on someone else's resume. The script catches patterns; you catch *judgment*:
+   - Does each bullet read like one human-written sentence, or does any bullet feel like a paragraph chopped into pieces?
+   - Does the flow across project bullets tell a story (what / how / result), or do they read as parallel descriptions of the same scope?
+   - Are any claims overclaimed (capabilities that aren't actually possible on the named hardware/stack)?
+   - Are skills tailored to the JD or are there leftovers from a more generic version?
+   - Does any number feel hedged ("30 to 60 minutes," "scaled from X to Y") that should commit to a single value or drop?
+   - Are project headers still aligned with the bullets below them (the meta tagline matches the focus of the work)?
+   - Is the resume tone consistent with the candidate's actual voice, or has it drifted into generated-feeling phrasing?
+   - **If any answer is "no," fix the HTML and rerun. Do not ship until both the script AND your own re-read are clean.**
+15. Report: PDF path, page count, scale, content_warnings count, and whether any auto-corrections were applied.
 
 ## ATS Rules (clean parsing)
 
