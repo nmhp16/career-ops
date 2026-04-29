@@ -4,10 +4,15 @@
  * generate-pdf.mjs — HTML → PDF via Playwright
  *
  * Usage:
- *   node career-ops/generate-pdf.mjs <input.html> <output.pdf> [--format=letter|a4]
+ *   node career-ops/generate-pdf.mjs <input.html> <output.pdf> [--format=letter|a4] [--allow-multipage] [--no-verify]
  *
  * Requires: @playwright/test (or playwright) installed.
  * Uses Chromium headless to render the HTML and produce a clean, ATS-parseable PDF.
+ *
+ * Verification (default on, opt out with --no-verify):
+ *   - Saves a fullPage screenshot of the rendered HTML next to the PDF as <name>.preview.png.
+ *   - Emits a final `RESULT: <json>` line with { ok, pages, scale, size_kb, preview_png, warnings[] }.
+ *   - Exits 2 when ok=false (pages>1 with single-page enforced, or PDF under 5 KB / corrupted).
  */
 
 import { chromium } from 'playwright';
@@ -91,12 +96,15 @@ async function generatePDF() {
   // Parse arguments
   let inputPath, outputPath, format = 'a4';
   let forceSinglePage = true;
+  let verify = true;
 
   for (const arg of args) {
     if (arg.startsWith('--format=')) {
       format = arg.split('=')[1].toLowerCase();
     } else if (arg === '--allow-multipage') {
       forceSinglePage = false;
+    } else if (arg === '--no-verify') {
+      verify = false;
     } else if (!inputPath) {
       inputPath = arg;
     } else if (!outputPath) {
@@ -105,7 +113,7 @@ async function generatePDF() {
   }
 
   if (!inputPath || !outputPath) {
-    console.error('Usage: node generate-pdf.mjs <input.html> <output.pdf> [--format=letter|a4]');
+    console.error('Usage: node generate-pdf.mjs <input.html> <output.pdf> [--format=letter|a4] [--allow-multipage] [--no-verify]');
     process.exit(1);
   }
 
@@ -190,6 +198,7 @@ async function generatePDF() {
 
   let pdfBuffer;
   let pageCount = 1;
+  let pdfScale = 1;
 
   const basePdfOptions = {
     format: format,
@@ -204,7 +213,6 @@ async function generatePDF() {
   };
 
   if (forceSinglePage) {
-    let pdfScale = 1;
     if (fit.overflow) {
       // Apply a small safety factor to avoid rounding edge cases.
       pdfScale = Math.max(0.65, Math.min(1, (fit.targetHeightPx / fit.contentHeightPx) * 0.995));
@@ -251,13 +259,64 @@ async function generatePDF() {
   const { writeFile } = await import('fs/promises');
   await writeFile(outputPath, pdfBuffer);
 
+  // Verification: screenshot rendered HTML for visual review + emit structured result
+  const sizeKb = pdfBuffer.length / 1024;
+  const finalScale = (typeof pdfScale === 'number' && Number.isFinite(pdfScale)) ? pdfScale : 1;
+  let previewPng = null;
+  const warnings = [];
+
+  if (verify) {
+    const previewPath = outputPath.replace(/\.pdf$/i, '.preview.png');
+    try {
+      await page.screenshot({ path: previewPath, fullPage: true });
+      previewPng = previewPath;
+    } catch (err) {
+      warnings.push(`preview-png-failed: ${err.message}`);
+    }
+
+    if (forceSinglePage && pageCount > 1) {
+      warnings.push(`pages>1: produced ${pageCount} pages with single-page enforcement on (auto-fit hit the 0.65 floor)`);
+    }
+    if (forceSinglePage && finalScale < 0.80) {
+      warnings.push(`scale<0.80: content shrunk to ${(finalScale * 100).toFixed(0)}% — text may be too small for recruiters/ATS`);
+    }
+    if (sizeKb < 5) {
+      warnings.push(`size<5kb: PDF is only ${sizeKb.toFixed(1)} KB — likely corrupted or empty`);
+    }
+  }
+
   await browser.close();
+
+  // ok=true means verification passed; ok=null means verification was skipped (--no-verify).
+  const ok = verify
+    ? !warnings.some((w) => w.startsWith('pages>1') || w.startsWith('size<5kb'))
+    : null;
 
   console.log(`✅ PDF generated: ${outputPath}`);
   console.log(`📊 Pages: ${pageCount}`);
-  console.log(`📦 Size: ${(pdfBuffer.length / 1024).toFixed(1)} KB`);
+  console.log(`📦 Size: ${sizeKb.toFixed(1)} KB`);
+  if (verify && previewPng) {
+    console.log(`🖼️  Preview: ${previewPng}`);
+  }
+  if (verify && warnings.length > 0) {
+    for (const w of warnings) console.log(`⚠️  ${w}`);
+  }
 
-  return { outputPath, pageCount, size: pdfBuffer.length };
+  const result = {
+    ok,
+    pages: pageCount,
+    scale: Number(finalScale.toFixed(3)),
+    size_kb: Number(sizeKb.toFixed(1)),
+    preview_png: previewPng,
+    warnings,
+  };
+  console.log(`RESULT: ${JSON.stringify(result)}`);
+
+  if (verify && !ok) {
+    process.exit(2);
+  }
+
+  return { outputPath, pageCount, size: pdfBuffer.length, previewPng, warnings, ok };
 }
 
 generatePDF().catch((err) => {

@@ -16,7 +16,8 @@
 10. Generate complete HTML from template + tailored content
 11. Write HTML to `/tmp/cv-candidate-{company}.html`
 12. Run: `node generate-pdf.mjs /tmp/cv-candidate-{company}.html output/cv-candidate-{company}-{YYYY-MM-DD}.pdf --format={letter|a4}`
-13. Report: PDF path, page count, keyword coverage
+13. **Verify & self-correct** (see "Post-generation Verification" below) — MANDATORY before reporting success
+14. Report: PDF path, page count, keyword coverage, and whether any auto-corrections were applied
 
 ## ATS Rules (clean parsing)
 
@@ -215,6 +216,52 @@ d. Report: PDF path, file size, Canva design URL
 - If `find_and_replace_text` has no matches -> try broader substring matching
 - Always return Canva design URL for manual edits
 
-## Post-generation
+## Post-generation Verification (MANDATORY)
+
+After every `generate-pdf.mjs` run, verify the output is recruiter/ATS-ready BEFORE reporting success. The script does verification by default (use `--no-verify` only when iterating on the template itself).
+
+### Step 1 — Parse the script output
+
+The last line of stdout is a machine-readable result, e.g.:
+
+```
+RESULT: {"ok":true,"pages":1,"scale":0.92,"size_kb":78.4,"preview_png":"output/cv-acme-2026-04-29.preview.png","warnings":[]}
+```
+
+Read these fields:
+- `ok` — overall pass/fail. `true` = clean, `false` = needs fix (Bash call also exits with code 2), `null` = verification was skipped via `--no-verify` (don't use `--no-verify` in normal mode).
+- `pages` — final PDF page count. Must be `1` unless `--allow-multipage` was passed.
+- `scale` — auto-fit scale used (1.0 = no shrink, 0.65 = floor). Below 0.80 means text is uncomfortably small.
+- `preview_png` — path to a fullPage screenshot of the rendered HTML. Always Read this image.
+- `warnings` — human-readable issues (`pages>1`, `scale<0.80`, `size<5kb`).
+
+### Step 2 — Visual review (always)
+
+Use the Read tool on `preview_png`. Check for:
+- Cut-off text at the page bottom (content extends past one page worth of vertical space)
+- Header oversized or wrapping to two lines (long contact info)
+- Sections overlapping each other or running into the bottom margin
+- Bullets wrapping awkwardly (orphan single words on a line)
+- Skills lines overflowing the right edge
+- Any blank/white gaps that suggest a rendering failure
+
+### Step 3 — Self-correct (cap at 3 iterations)
+
+If `ok=false`, `scale<0.80`, or the PNG shows a visual issue, trim content in this **priority order** and regenerate:
+
+1. **Drop the lowest-JD-relevance project** from `{{PROJECTS_BLOCK}}`. Keep the top 3 minimum.
+2. **Compress the longest experience or project bullet** to a single sentence (preserve the JD keywords; cut adjective phrases and parenthetical clarifications).
+3. **Drop the Coursework line** under Education.
+4. **Compress Skills lines** by removing the least-JD-relevant items from each category (keep at least 5 per line).
+
+After each fix, re-run `generate-pdf.mjs` and re-verify. Stop as soon as `ok=true` AND `scale≥0.80` AND the PNG looks clean.
+
+**Iteration cap:** if 3 fix attempts haven't produced a clean output, STOP. Surface the latest `preview_png` to the user with a 1–2 sentence summary of what's still wrong, and ask which content they want to drop. NEVER silently ship a multi-page or visually broken PDF.
+
+### Step 4 — Cleanup
+
+Once `ok=true` and the visual check passes, the `.preview.png` can stay next to the PDF (it's small, and it documents what was generated). Don't delete it unless the user asks.
+
+## Post-generation Tracker Update
 
 Update tracker if offer already exists: set PDF status from ❌ to ✅.
