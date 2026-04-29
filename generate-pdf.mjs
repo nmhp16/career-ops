@@ -13,13 +13,9 @@
 import { chromium } from 'playwright';
 import { resolve, dirname } from 'path';
 import { readFile } from 'fs/promises';
-import { mkdirSync } from 'fs';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-
-// Ensure output directory exists (fresh setup)
-mkdirSync(resolve(__dirname, 'output'), { recursive: true });
 
 /**
  * Normalize text for ATS compatibility by converting problematic Unicode.
@@ -74,15 +70,33 @@ function normalizeTextForATS(html) {
   }
 }
 
+function extractPageCount(pdfBuffer) {
+  const pdfString = pdfBuffer.toString('latin1');
+
+  // Prefer /Pages tree count (more reliable than counting /Page markers)
+  const treeMatch = pdfString.match(/\/Type\s*\/Pages[\s\S]{0,300}?\/Count\s+(\d+)/);
+  if (treeMatch) {
+    const n = Number(treeMatch[1]);
+    if (Number.isFinite(n) && n > 0) return n;
+  }
+
+  // Fallback approximation
+  const fallback = (pdfString.match(/\/Type\s*\/Page[^s]/g) || []).length;
+  return fallback || 1;
+}
+
 async function generatePDF() {
   const args = process.argv.slice(2);
 
   // Parse arguments
   let inputPath, outputPath, format = 'a4';
+  let forceSinglePage = true;
 
   for (const arg of args) {
     if (arg.startsWith('--format=')) {
       format = arg.split('=')[1].toLowerCase();
+    } else if (arg === '--allow-multipage') {
+      forceSinglePage = false;
     } else if (!inputPath) {
       inputPath = arg;
     } else if (!outputPath) {
@@ -105,6 +119,10 @@ async function generatePDF() {
     process.exit(1);
   }
 
+  const pageDimensions = format === 'letter'
+    ? { widthIn: 8.5, heightIn: 11 }
+    : { widthIn: 210 / 25.4, heightIn: 297 / 25.4 };
+
   console.log(`📄 Input:  ${inputPath}`);
   console.log(`📁 Output: ${outputPath}`);
   console.log(`📏 Format: ${format.toUpperCase()}`);
@@ -118,10 +136,10 @@ async function generatePDF() {
     /url\(['"]?\.\/fonts\//g,
     `url('file://${fontsDir}/`
   );
-  // Close any unclosed quotes from the replacement (handles all font formats)
+  // Close any unclosed quotes from the replacement
   html = html.replace(
-    /file:\/\/([^'")]+)\.(woff2?|ttf|otf)['"]?\)/g,
-    `file://$1.$2')`
+    /file:\/\/([^'")]+)\.woff2['"]\)/g,
+    `file://$1.woff2')`
   );
 
   // Normalize text for ATS compatibility (issue #1)
@@ -134,47 +152,112 @@ async function generatePDF() {
   }
 
   const browser = await chromium.launch({ headless: true });
-  try {
-    const page = await browser.newPage();
+  const page = await browser.newPage();
 
-    // Set content with file base URL for any relative resources
-    await page.setContent(html, {
-      waitUntil: 'networkidle',
-      baseURL: `file://${dirname(inputPath)}/`,
-    });
+  // Set content with file base URL for any relative resources
+  await page.setContent(html, {
+    waitUntil: 'networkidle',
+    baseURL: `file://${dirname(inputPath)}/`,
+  });
 
-    // Wait for fonts to load
-    await page.evaluate(() => document.fonts.ready);
+  // Wait for fonts to load
+  await page.evaluate(() => document.fonts.ready);
 
-    // Generate PDF
-    const pdfBuffer = await page.pdf({
-      format: format,
-      printBackground: true,
-      margin: {
-        top: '0.6in',
-        right: '0.6in',
-        bottom: '0.6in',
-        left: '0.6in',
-      },
-      preferCSSPageSize: false,
-    });
+  // Fit diagnostics: detect if HTML content exceeds one page
+  const fit = await page.evaluate((pdfFormat) => {
+    const root = document.querySelector('.page') || document.body;
+    const cssPxPerIn = 96;
+    const pageHeightIn = pdfFormat.heightIn;
+    const targetHeightPx = pageHeightIn * cssPxPerIn;
+    const contentHeightPx = Math.max(root.scrollHeight, root.clientHeight);
+    return {
+      targetHeightPx,
+      contentHeightPx,
+      overflow: contentHeightPx > targetHeightPx,
+      ratio: contentHeightPx / targetHeightPx,
+    };
+  }, pageDimensions);
 
-    // Write PDF
-    const { writeFile } = await import('fs/promises');
-    await writeFile(outputPath, pdfBuffer);
-
-    // Count pages (approximate from PDF structure)
-    const pdfString = pdfBuffer.toString('latin1');
-    const pageCount = (pdfString.match(/\/Type\s*\/Page[^s]/g) || []).length;
-
-    console.log(`✅ PDF generated: ${outputPath}`);
-    console.log(`📊 Pages: ${pageCount}`);
-    console.log(`📦 Size: ${(pdfBuffer.length / 1024).toFixed(1)} KB`);
-
-    return { outputPath, pageCount, size: pdfBuffer.length };
-  } finally {
-    await browser.close();
+  if (fit.overflow) {
+    console.log(
+      `ℹ️ Multi-page layout: content ${Math.round(fit.contentHeightPx)}px > ${Math.round(fit.targetHeightPx)}px (${fit.ratio.toFixed(2)}x)`
+    );
+  } else {
+    console.log(
+      `ℹ️ One-page fit: content ${Math.round(fit.contentHeightPx)}px <= ${Math.round(fit.targetHeightPx)}px`
+    );
   }
+
+  let pdfBuffer;
+  let pageCount = 1;
+
+  const basePdfOptions = {
+    format: format,
+    printBackground: true,
+    margin: {
+      top: '0in',
+      right: '0in',
+      bottom: '0in',
+      left: '0in',
+    },
+    preferCSSPageSize: false,
+  };
+
+  if (forceSinglePage) {
+    let pdfScale = 1;
+    if (fit.overflow) {
+      // Apply a small safety factor to avoid rounding edge cases.
+      pdfScale = Math.max(0.65, Math.min(1, (fit.targetHeightPx / fit.contentHeightPx) * 0.995));
+    }
+
+    let attempts = 0;
+    const maxAttempts = 12;
+
+    while (attempts < maxAttempts) {
+      attempts += 1;
+
+      const horizontalMarginIn = pdfScale < 1
+        ? `${((pageDimensions.widthIn * (1 - pdfScale)) / 2).toFixed(3)}in`
+        : '0in';
+
+      pdfBuffer = await page.pdf({
+        ...basePdfOptions,
+        scale: pdfScale,
+        margin: {
+          top: '0in',
+          right: horizontalMarginIn,
+          bottom: '0in',
+          left: horizontalMarginIn,
+        },
+      });
+
+      pageCount = extractPageCount(pdfBuffer);
+      if (pageCount <= 1 || pdfScale <= 0.65) {
+        console.log(`📐 Auto-fit scale: ${(pdfScale * 100).toFixed(1)}% (attempt ${attempts})`);
+        break;
+      }
+
+      pdfScale = Math.max(0.65, pdfScale - 0.01);
+    }
+  } else {
+    pdfBuffer = await page.pdf({
+      ...basePdfOptions,
+      scale: 1,
+    });
+    pageCount = extractPageCount(pdfBuffer);
+  }
+
+  // Write PDF
+  const { writeFile } = await import('fs/promises');
+  await writeFile(outputPath, pdfBuffer);
+
+  await browser.close();
+
+  console.log(`✅ PDF generated: ${outputPath}`);
+  console.log(`📊 Pages: ${pageCount}`);
+  console.log(`📦 Size: ${(pdfBuffer.length / 1024).toFixed(1)} KB`);
+
+  return { outputPath, pageCount, size: pdfBuffer.length };
 }
 
 generatePDF().catch((err) => {

@@ -159,7 +159,7 @@ console.log('\n5. Data contract validation');
 const systemFiles = [
   'CLAUDE.md', 'VERSION', 'DATA_CONTRACT.md',
   'modes/_shared.md', 'modes/_profile.template.md',
-  'modes/oferta.md', 'modes/pdf.md', 'modes/scan.md',
+  'modes/evaluate.md', 'modes/pdf.md', 'modes/scan.md',
   'templates/states.yml', 'templates/cv-template.html',
   '.claude/skills/career-ops/SKILL.md',
 ];
@@ -198,9 +198,7 @@ const leakPatterns = [
 
 const scanExtensions = ['md', 'yml', 'html', 'mjs', 'sh', 'go', 'json'];
 const allowedFiles = [
-  // English README + localized translations (all legitimately credit Santiago)
-  'README.md', 'README.es.md', 'README.ja.md', 'README.ko-KR.md',
-  'README.pt-BR.md', 'README.ru.md',
+  'README.md',
   // Standard project files
   'LICENSE', 'CITATION.cff', 'CONTRIBUTING.md',
   'package.json', '.github/FUNDING.yml', 'CLAUDE.md', 'go.mod', 'test-all.mjs',
@@ -259,9 +257,9 @@ if (!absPathResult) {
 console.log('\n8. Mode file integrity');
 
 const expectedModes = [
-  '_shared.md', '_profile.template.md', 'oferta.md', 'pdf.md', 'scan.md',
-  'batch.md', 'apply.md', 'auto-pipeline.md', 'contacto.md', 'deep.md',
-  'ofertas.md', 'pipeline.md', 'project.md', 'tracker.md', 'training.md',
+  '_shared.md', '_profile.template.md', 'evaluate.md', 'pdf.md', 'scan.md',
+  'batch.md', 'apply.md', 'auto-pipeline.md', 'contact.md', 'deep.md',
+  'compare.md', 'pipeline.md', 'project.md', 'tracker.md', 'training.md',
 ];
 
 for (const mode of expectedModes) {
