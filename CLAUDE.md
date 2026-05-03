@@ -280,16 +280,17 @@ Each bullet should read as: **action verb → artifact → mechanism (briefly, i
 - End each bullet on a concrete outcome: a metric, the scope of what it does, or what it enables in the system
 
 **Bad (description style):**
-> "Designed a FastAPI backend organized as 4 routers (rules, collection, scanner, bins) over a layered router-service-repository architecture, CORS-locked to specific origins, packaged for deployment with Docker and uvicorn."
+> "Designed a backend service organized as 5 modules (auth, billing, search, notifications, admin) over a layered controller-service-repository architecture, CORS-locked to specific origins, packaged for deployment with Docker and gunicorn."
 
 **Good (resume style):**
-> "Built a production FastAPI backend with a layered router-service-repository architecture (async, 4 routers, Docker-packaged) that aggregates 50-state recycling rules, municipal pickup schedules, and barcode product data into a single REST API."
+> "Built a production REST backend with a layered controller-service-repository architecture (5 modules, JWT-auth, Docker-packaged) that powers signup, billing, and search for ~100K active users."
 
 **Pre-flight check before `generate-pdf.mjs` runs.** For each bullet in EXPERIENCE_BLOCK and PROJECTS_BLOCK, ask:
 1. Does it start with an action verb?
 2. Does it have a concrete outcome at the end (metric, scope, what it enables)?
 3. Are architecture components in parens, not as the main clause?
 4. If you removed the parens, would the remaining sentence still claim something useful?
+5. **Within a single project or role, does every bullet cover a DIFFERENT aspect of the work?** Architecture, inputs, deployment, performance, eval, scaling, etc. should each get their own bullet. If two bullets reference the same controller / pipeline / model / metric / FSM from different angles, they're duplicates -- combine into one denser bullet, or rewrite the weaker one to cover a distinct dimension (e.g., move from "controller routed paths" to "input perception layer" or "on-device deployment").
 
 If any answer is no, rewrite before generating.
 
@@ -302,9 +303,20 @@ A project's value on a tailored CV depends on three axes:
 
 If a project nails (2) but fails (3), drop it. Domain alignment can land via experience bullets and the cover letter -- projects need to read clearly to whoever's screening.
 
-**Heuristic:** If a non-ML reviewer would have to Google three terms in a single bullet (e.g., "ACT," "isaaclab_mimic," "curobo"), the project is wrong for that audience.
+**Heuristic:** If a non-domain reviewer would have to Google three or more specialized terms in a single bullet (specific framework names, paper-acronyms, niche library identifiers), the project is wrong for that audience.
 
-The user's specific project-to-role mapping table is in `modes/_profile.md` under "Your Tailoring Rules".
+**Bullet-level audience match (extends the same principle).** The same project should not surface the same bullets to every audience. Rewrite or replace bullets to match the reviewer. Illustrative template:
+
+| Project type | ML / AI role bullets | Robotics control role bullets | Embedded / firmware role bullets |
+|--------------|----------------------|--------------------------------|----------------------------------|
+| Imitation-learning / RL training pipeline | Fine-tuning loop, paper replication, eval harness | Sim-side data augmentation, scaling demos to thousands of trajectories, asset format conversion | (drop, not relevant) |
+| Multi-modal robot brain (LLM + VLM + perception) | Multi-model orchestration, agentic controller, on-device inference | Kinematics on a reduced model, per-joint gain tuning, smooth tracking | Low-level control bus, CRC-validated transport, real-time on-device loop |
+| Backend web / API service | (drop, low ML signal) | (drop) | (drop) |
+| Embedded autonomy stack | (drop, low ML signal) | FSM with freshness checks, visual servoing, multi-modal vision navigation | Microcontroller firmware in C/C++, real-time buffers, ROS-equivalent integration |
+
+When the reviewer's role doesn't justify a bullet's depth (e.g., shipping kinematics + per-joint gain tuning bullets to a marketing-AI hiring manager), drop or rewrite the bullet rather than ship off-target depth.
+
+The user's specific project-to-role and bullet-level mappings (with their actual project names) live in `modes/_profile.md` under "Your Tailoring Rules".
 
 ### Cover letter tone scales with candidate seniority
 
@@ -317,6 +329,35 @@ The user's specific project-to-role mapping table is in `modes/_profile.md` unde
 Don't apply senior-level "I'm choosing you" framing (e.g., from `modes/auto-pipeline.md` Step 4) to junior/intern apps -- it reads as cocky.
 
 The candidate's default seniority is set in `modes/_profile.md` under "Your Tailoring Rules".
+
+### Cover letter prose != resume bullet style
+
+Cover letters need narrative flow, not resume-density. The same anti-AI-tells from `modes/_shared.md` apply, plus these cover-letter-specific patterns to avoid:
+
+1. **Resume-bullet-stuffed-into-sentence.** Heavy parentheticals stuffed with technical specs read as copy-pasted resume bullets. Example AI tell:
+   > "I built a content moderation service (rule-engine evaluation, ML-classifier scoring, async retry queue, hybrid vector store of past decisions and review notes, and a feedback loop from human moderators)..."
+
+   Limit parentheticals to 1-2 specs max in cover letter prose. Move technical depth to the resume; let the cover letter narrate.
+
+2. **Quoting JD marketing copy verbatim.** "Agentic Decision OS for Growth Marketing", "AI tools as standard equipment", "Decisioning Waterfall". Recruiters get hundreds of letters that echo their own taglines back. Pick at most one JD phrase to anchor; replace others with concrete observations ("you're shipping that for real customers").
+
+3. **Topic-header colons in body paragraphs.** "On the AI-native and shipping-speed side:" / "On the technical fit:" / "Regarding eval harnesses:". Humans don't write cover letters with section labels -- this is LLM scaffolding leaking through. Drop the headers; let paragraphs flow.
+
+4. **Repetitive paragraph architecture.** Every paragraph following the same shape (topic claim -> dense parenthetical with specs -> vague transferable bridge) is a strong AI signal. Vary sentence length and structure across paragraphs. Some short punchy sentences, some longer narrative.
+
+5. **Vague transferable bridges.** "Would carry over to X", "lines up with what you're building", "aligns with the team's mission". Pick one concrete thing the work would help with, name it specifically. ("Building benchmarks for marketing-science models is the same problem in a different domain" beats "would carry over to marketing-science benchmarks.")
+
+6. **Restating across paragraphs.** If paragraph N just rephrases content from paragraphs 1 to N-1 with a "transferable" claim, drop it. Cover letters should be 4-5 paragraphs of distinct content, not 6 paragraphs where 1-2 are filler.
+
+**Strong human signals to keep:**
+- Direct admissions of gaps ("I'll be honest about X. I haven't done Y yet.")
+- Conversational logistics framing ("My internship wraps in May, so...")
+- "The interesting part wasn't X, it was Y" style of how engineers actually talk about their work
+- One unexpected detail per project that grounds it (e.g., "figuring out how to handle the one upstream API that returned a 200 with the error embedded in the response body")
+
+**Pre-flight check:** Read each paragraph aloud. If it sounds like a resume bullet rather than a sentence a person would write to another person, rewrite.
+
+**Calibrate to candidate voice (meta-principle).** The defaults in this rule and in "Cover letter tone scales with candidate seniority" are starting points, not endpoints. Some candidates write in a more reserved, factual style and don't naturally use editorial framings ("the interesting part was X"), lessons-learned closers ("that taught me how to..."), or enthusiasm closers ("I'd love to contribute and learn..."). For reserved candidates, drop those moves entirely -- let the work statements stand on their own and use a neutral close ("Thank you for considering my application"). The candidate-specific voice calibration lives in the project's `modes/_profile.md` under "Your Tailoring Rules".
 
 ---
 
