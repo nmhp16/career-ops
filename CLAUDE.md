@@ -294,6 +294,49 @@ Each bullet should read as: **action verb → artifact → mechanism (briefly, i
 
 If any answer is no, rewrite before generating.
 
+### Action verbs must not repeat across bullets
+
+Every bullet on a tailored PDF starts with a unique action verb. No verb appears twice anywhere in the document — not within a job/project block, and not across blocks.
+
+**Why:** Repeated openers ("Built X. Built Y. Built Z.") read as a generated list, signal LLM authorship, and waste the bullet-opener slot that should differentiate each accomplishment.
+
+**How to apply:** Before generating the PDF, list every bullet's opening verb. If any verb appears more than once, swap to one of: Engineered, Designed, Shipped, Wired, Implemented, Authored, Wrote, Scaled, Developed, Integrated, Bridged, Closed, Drove, Cut, Trained, Validated, Compiled, Ported, Optimized, Hand-rolled. Match the verb to the work — "Wrote" for code-from-scratch, "Designed" for architectural work, "Shipped" for delivered hackathon outputs, "Bridged" for integration work. Avoid weak openers ("worked on," "helped with," "responsible for," "contributed to").
+
+### Cap bullet density at 4 comma-separated components
+
+A bullet that lists components as "with X, Y, Z, W, and V" reads as draggy past 4 items. Trim to the 4 most distinctive components and drop the most generic.
+
+**Why:** Five-or-more-item lists feel like exhaustive feature dumps, not curated highlights. The reader stops parsing differentiation halfway through, and the bullet starts to read like a README paragraph instead of a resume bullet.
+
+**How to apply:** When a bullet uses "...with [list]", count the items. If 5 or more, drop the most generic — the one a knowledgeable reader would assume by default. Example: a SLAM bullet listing [ORB visual odometry, custom-calibrated MiDaS depth, sparse 3D landmark map, loop closure with pose-graph correction, virtual-GPS publisher] is 5 items — drop "sparse 3D landmark map" because every SLAM emits one. Keep the 4 distinctive components.
+
+### Don't list every API/backend/library by name
+
+When a system uses multiple sources (API backends, scrapers, model providers, databases), name the category, not the roster. Recruiters don't care which 4 scrapers you used — only that the architecture handles multi-source fan-out.
+
+**Why:** Listing every endpoint by name (e.g., "(Nominatim, DuckDuckGo, BBB, OpenCorporates)") reads as resume padding and clutters the bullet without adding signal. The category label conveys the same engineering complexity in fewer words.
+
+**How to apply:** Use category labels: "multi-backend company discovery" beats "(Nominatim, DuckDuckGo, BBB, OpenCorporates)". "Multi-source product lookup" beats "(Open Food Facts, UPC Item DB, BarcodeLookup, Gemini Vision fallback)". **Exception:** when ONE specific source is the differentiator (e.g., "Claude-drafted outreach" — naming Claude is the value, since the recruiter is from Anthropic), keep that single name. Don't keep all of them just to keep one.
+
+### Strip padding phrases from bullets
+
+Buzzword qualifiers and time-fillers that don't add information: "end-to-end", "from scratch" (when verb already implies it — e.g., "Wrote", "Hand-rolled"), "real-flight tests" (just "real flight"), "in production" (when delivery context is clear), "best-in-class", "high-performance" (without a noun), "streamlined", "robust", "next-generation".
+
+**Why:** These add length without signal. They feel like LLM filler and trigger recruiter skim-fatigue. The bullet reads "draggy" — the reader senses padding even before identifying it.
+
+**How to apply:** After drafting, scan each bullet for padding adjectives and qualifiers. If removing the phrase doesn't change the engineering claim, remove it. Examples:
+- "validated end-to-end in SITL before real-flight tests" → "validated in SITL before real flight"
+- "Wrote a SLAM node from scratch with..." → "Wrote a SLAM node with..." (Wrote already implies from-scratch)
+- "robust real-time pipeline" → "real-time pipeline" or specify what makes it robust (retries, circuit breakers, etc.)
+
+### Cap internship workstreams at 2 bullets per role
+
+A short-tenure internship (less than 6 months) gets at most 2 bullets on a tailored PDF, even if the candidate worked on more. Pick the strongest two for the role; let the rest live on the master `cv.md`.
+
+**Why:** Listing 3-4 distinct workstreams from a 4-month internship raises a "did they really ship all this?" red flag. Recruiters either discount the candidate as overclaiming or assume each workstream was shallow. Two strong bullets read more credibly than four scattered ones — and leave room to discuss the dropped work in the interview.
+
+**How to apply:** For a tailored PDF, pick the 2 bullets that best serve the target role: typically (a) the headline metric/result (the "what did you ship" bullet), plus (b) the strongest signal for the role's archetype (the "what depth do you have" bullet). Drop secondary workstreams. The full list stays on `cv.md` for context. For full-time or longer-tenure roles, this cap doesn't apply — 3-5 bullets is fine.
+
 ### Project selection matches reviewer audience (3 axes, not 2)
 
 A project's value on a tailored CV depends on three axes:
