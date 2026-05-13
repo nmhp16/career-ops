@@ -408,7 +408,7 @@ Form answers (e.g., "Tell us about a project", "Why do you want to join?") are N
 
 **AI tells specific to form answers (never do these):**
 
-1. **Em-dash appositional opener.** "ProjectName -- a type-of-thing that does X" is the #1 LLM fingerprint. Never open a form answer by naming the project then defining it with an em-dash. Start in the middle of the story instead.
+1. **Em-dashes anywhere.** Em-dashes (— or --) are AI tells in all body text, including form answers. No exceptions. Replace with: a period (punchy pause), a colon (introducing an explanation), a semicolon (joining related clauses), or a comma. The appositional pattern "ProjectName -- a type-of-thing that does X" is the worst case, but even mid-sentence em-dashes ("it failed -- here's why") should be replaced.
 
 2. **Definition-then-detail structure.** Sentence 1 defines the project. Sentence 2 names the hard part. Sentence 3 goes deeper. Sentence 4 adds another layer. Sentence 5 gives the result. This formulaic shape reads as generated. Vary the structure: start with the hard part, or with a specific moment, not the definition.
 
@@ -418,14 +418,23 @@ Form answers (e.g., "Tell us about a project", "Why do you want to join?") are N
 
 5. **Verbatim resume trophy display.** Award credits copy-pasted from resume bullets ("1st place, HackathonName (X,000+ participants)") sound copy-pasted. Integrate results naturally: "We won 1st." Full stop, no parenthetical.
 
+6. **Architecture-first opens.** "Built a [framework/architecture] for [technical purpose]" describes the internals before saying what the system does. The reader needs to know what it does before they care how it's built. Start with the observable output: "Built a system that lets [person] do [thing]" — then name the mechanism. "Built a VLA controller for the Unitree G1 humanoid" is an architecture-first open; "Built a system that lets a Unitree G1 humanoid mirror your arm movements" is an output-first open.
+
 **What good form answers look like:**
 
+- **Lead with what the system does, not the architecture.** Observable output first, mechanism second. "Built a system that lets a robot mirror your movements" beats "Built a VLA controller." The output is the hook.
+- **Show your specific contribution in team projects.** "I handled the IK stack" beats "we built everything together." Name what YOU did.
+- **Name the moment it worked, not just the moment it failed.** A 1 AM breakthrough is as credible and human as a 1 AM failure. Both ground the story.
 - Start partway into the story, not at the definition. "Most of the time went into X..." not "ProjectName was a project that built Y..."
-- Name a specific moment of struggle or failure. It makes the answer human and credible.
-- Use "we" for team projects, not "I built a project where the team..."
+- Use "we" for team-level outcomes; use "I" for your specific contribution within the team.
 - Mix short punchy sentences with longer ones. Uniform sentence rhythm is an AI tell.
 - Trust the reader. Don't explain every acronym. Don't close with a meta-observation about why the work is relevant -- let the connection be obvious from the specifics.
-- For "why join" answers: name the company's specific product or problem (shows you read the JD), state what you want in one direct sentence, add logistics only if relevant. No more than that.
+- For "why join" answers: name the specific product by name (LeLamp, not "the company's product"), state what you want in one direct sentence, add logistics only if relevant. No more than that.
+- **Read the JD or company "about" page before writing "why join".** Don't guess at the company's mission or paraphrase what you assume they care about — pull the answer's anchor from their actual language. If the JD says "Take ownership over the feel of the robot's motion, not just its correctness," that's the value your answer should reflect (without quoting verbatim — see next rule).
+- **Reword JD value statements in your own engineering language, don't paraphrase them.** If your "why join" sentence is almost-but-not-quite a JD bullet ("motion that feels right, not just motion that's correct" ≈ JD's "feel of motion, not just its correctness"), the reviewer notices the echo and it reads as reciting their JD back at them. Use your own technical framing instead: "the motion looked right to the people watching, not just satisfied the IK solver" maps to the same value through *your* engineering vocabulary.
+- **Anchor "why join" to a specific past project, not generic interest in the problem.** "I'm interested in the problem you solve" is weak — anyone could write it. "On the G1 I spent the first night tuning the arm gains so the motion stopped looking twitchy" shows you've already done some version of their work. The specificity makes the interest sound informed rather than aspirational, and proves capability without needing to claim it.
+- **Don't admit gaps in "why join" form answers.** A 3-5 sentence form answer is too short to balance a gap admission ("I haven't gone deep on X yet") with strengths — the gap line lands as you talking yourself out of the role. Reserve gap admissions for cover letters where you have 4+ paragraphs to recover. In a "why join", frame the angle as interest in the problem they solve: "LeLamp is built around that same problem" or "that's the kind of robot I want to work on" — not "I haven't done that yet."
+- **"Why join" structure that works (4-5 sentences):** (1) one-line context on what you've been doing (1 year on robotics, projects X and Y), (2) the specific moment / sub-problem from that work that you cared about most, (3) name the company's product and connect it to that sub-problem, (4) optional one-line interest statement, (5) logistics if needed.
 
 **Pre-flight check for form answers:** Read it aloud. If it sounds like a resume bullet expanded into sentences, rewrite. If it has more than two parentheticals, trim. If every sentence is roughly the same length, vary it.
 
