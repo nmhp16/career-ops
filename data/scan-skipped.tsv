@@ -1,22 +1,22 @@
 company	careers_url	scan_method	scan_query	reason	last_checked
-OpenAI	https://openai.com/careers	websearch	site:openai.com/careers "Engineer" "New Grad" OR "Entry"	no_provider_detected	2026-04-29
-Google DeepMind	https://deepmind.google/about/careers/	websearch	site:deepmind.google "Engineer" "New Grad" OR "Early Career"	no_provider_detected	2026-04-29
-Boston Dynamics	https://bostondynamics.com/careers/	websearch	site:bostondynamics.com/careers "Engineer" "New Grad" OR "Entry"	no_provider_detected	2026-04-29
-Figure AI	https://www.figure.ai/careers	websearch	site:figure.ai/careers "Engineer"	no_provider_detected	2026-04-29
-1X Technologies	https://www.1x.tech/careers	websearch	site:1x.tech/careers "Engineer"	no_provider_detected	2026-04-29
-Tesla	https://www.tesla.com/careers	websearch	site:tesla.com/careers "Software Engineer" OR "Autopilot" OR "Optimus" "New Grad" OR "Entry"	no_provider_detected	2026-04-29
-Waymo	https://waymo.com/careers/	websearch	site:waymo.com/careers "Engineer" "New Grad" OR "University"	no_provider_detected	2026-04-29
-Cruise	https://www.getcruise.com/careers	websearch	site:getcruise.com/careers "Engineer" "New Grad" OR "University"	no_provider_detected	2026-04-29
-Apple	https://jobs.apple.com/en-us/search	websearch	site:jobs.apple.com "Software Engineer" "New Grad" OR "University"	no_provider_detected	2026-04-29
-Meta	https://www.metacareers.com/jobs	websearch	site:metacareers.com "University" OR "New Grad" "Engineer"	no_provider_detected	2026-04-29
-Google	https://www.google.com/about/careers/applications/jobs/results/	websearch	site:google.com/about/careers "Software Engineer" "Early Career" OR "University"	no_provider_detected	2026-04-29
-Amazon	https://www.amazon.jobs/en/teams/early-career-programs	websearch	site:amazon.jobs "SDE" OR "Software Engineer" "New Grad" OR "Entry"	no_provider_detected	2026-04-29
-Microsoft	https://jobs.careers.microsoft.com/global/en/search	websearch	site:careers.microsoft.com "Software Engineer" "New Grad" OR "University"	no_provider_detected	2026-04-29
-Niantic	https://nianticlabs.com/careers	websearch	site:nianticlabs.com/careers "Engineer"	no_provider_detected	2026-04-29
-Stripe	https://stripe.com/jobs	websearch	site:stripe.com/jobs "Software Engineer" "New Grad" OR "University"	no_provider_detected	2026-04-29
-LinkedIn	https://www.linkedin.com/jobs/linkedin-jobs	websearch	site:linkedin.com/company/linkedin/jobs "Software Engineer" "New Grad" OR "Entry"	no_provider_detected	2026-04-29
-Snap	https://careers.snap.com/jobs	websearch	site:careers.snap.com "Software Engineer" "Early Career"	no_provider_detected	2026-04-29
-Adobe	https://careers.adobe.com	websearch	site:careers.adobe.com "Software Engineer" "New Grad" OR "University"	no_provider_detected	2026-04-29
-Pinterest	https://www.pinterestcareers.com	websearch	site:pinterestcareers.com "Software Engineer" "New Grad"	no_provider_detected	2026-04-29
-Airbnb	https://careers.airbnb.com/positions/	websearch	site:careers.airbnb.com "Software Engineer" "New Grad" OR "University"	no_provider_detected	2026-04-29
-Roblox	https://corp.roblox.com/careers/	websearch	site:corp.roblox.com/careers "Software Engineer" "New Grad" OR "University"	no_provider_detected	2026-04-29
+OpenAI	https://openai.com/careers	websearch	site:openai.com/careers "Engineer" "New Grad" OR "Entry"	no_provider_detected	2026-05-09
+Google DeepMind	https://deepmind.google/about/careers/	websearch	site:deepmind.google "Engineer" "New Grad" OR "Early Career"	no_provider_detected	2026-05-09
+Boston Dynamics	https://bostondynamics.com/careers/	websearch	site:bostondynamics.com/careers "Engineer" "New Grad" OR "Entry"	no_provider_detected	2026-05-09
+Figure AI	https://www.figure.ai/careers	websearch	site:figure.ai/careers "Engineer"	no_provider_detected	2026-05-09
+1X Technologies	https://www.1x.tech/careers	websearch	site:1x.tech/careers "Engineer"	no_provider_detected	2026-05-09
+Tesla	https://www.tesla.com/careers	websearch	site:tesla.com/careers "Software Engineer" OR "Autopilot" OR "Optimus" "New Grad" OR "Entry"	no_provider_detected	2026-05-09
+Waymo	https://waymo.com/careers/	websearch	site:waymo.com/careers "Engineer" "New Grad" OR "University"	no_provider_detected	2026-05-09
+Cruise	https://www.getcruise.com/careers	websearch	site:getcruise.com/careers "Engineer" "New Grad" OR "University"	no_provider_detected	2026-05-09
+Apple	https://jobs.apple.com/en-us/search	websearch	site:jobs.apple.com "Software Engineer" "New Grad" OR "University"	no_provider_detected	2026-05-09
+Meta	https://www.metacareers.com/jobs	websearch	site:metacareers.com "University" OR "New Grad" "Engineer"	no_provider_detected	2026-05-09
+Google	https://www.google.com/about/careers/applications/jobs/results/	websearch	site:google.com/about/careers "Software Engineer" "Early Career" OR "University"	no_provider_detected	2026-05-09
+Amazon	https://www.amazon.jobs/en/teams/early-career-programs	websearch	site:amazon.jobs "SDE" OR "Software Engineer" "New Grad" OR "Entry"	no_provider_detected	2026-05-09
+Microsoft	https://jobs.careers.microsoft.com/global/en/search	websearch	site:careers.microsoft.com "Software Engineer" "New Grad" OR "University"	no_provider_detected	2026-05-09
+Niantic	https://nianticlabs.com/careers	websearch	site:nianticlabs.com/careers "Engineer"	no_provider_detected	2026-05-09
+Stripe	https://stripe.com/jobs	websearch	site:stripe.com/jobs "Software Engineer" "New Grad" OR "University"	no_provider_detected	2026-05-09
+LinkedIn	https://www.linkedin.com/jobs/linkedin-jobs	websearch	site:linkedin.com/company/linkedin/jobs "Software Engineer" "New Grad" OR "Entry"	no_provider_detected	2026-05-09
+Snap	https://careers.snap.com/jobs	websearch	site:careers.snap.com "Software Engineer" "Early Career"	no_provider_detected	2026-05-09
+Adobe	https://careers.adobe.com	websearch	site:careers.adobe.com "Software Engineer" "New Grad" OR "University"	no_provider_detected	2026-05-09
+Pinterest	https://www.pinterestcareers.com	websearch	site:pinterestcareers.com "Software Engineer" "New Grad"	no_provider_detected	2026-05-09
+Airbnb	https://careers.airbnb.com/positions/	websearch	site:careers.airbnb.com "Software Engineer" "New Grad" OR "University"	no_provider_detected	2026-05-09
+Roblox	https://corp.roblox.com/careers/	websearch	site:corp.roblox.com/careers "Software Engineer" "New Grad" OR "University"	no_provider_detected	2026-05-09

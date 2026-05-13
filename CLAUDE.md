@@ -402,6 +402,33 @@ Cover letters need narrative flow, not resume-density. The same anti-AI-tells fr
 
 **Calibrate to candidate voice (meta-principle).** The defaults in this rule and in "Cover letter tone scales with candidate seniority" are starting points, not endpoints. Some candidates write in a more reserved, factual style and don't naturally use editorial framings ("the interesting part was X"), lessons-learned closers ("that taught me how to..."), or enthusiasm closers ("I'd love to contribute and learn..."). For reserved candidates, drop those moves entirely -- let the work statements stand on their own and use a neutral close ("Thank you for considering my application"). The candidate-specific voice calibration lives in the project's `modes/_profile.md` under "Your Tailoring Rules".
 
+### Application form short-answer questions
+
+Form answers (e.g., "Tell us about a project", "Why do you want to join?") are NOT cover letter paragraphs and NOT resume bullets. They need their own rules.
+
+**AI tells specific to form answers (never do these):**
+
+1. **Em-dash appositional opener.** "ProjectName -- a type-of-thing that does X" is the #1 LLM fingerprint. Never open a form answer by naming the project then defining it with an em-dash. Start in the middle of the story instead.
+
+2. **Definition-then-detail structure.** Sentence 1 defines the project. Sentence 2 names the hard part. Sentence 3 goes deeper. Sentence 4 adds another layer. Sentence 5 gives the result. This formulaic shape reads as generated. Vary the structure: start with the hard part, or with a specific moment, not the definition.
+
+3. **Perfect coverage.** If every angle is covered (architecture, challenge, solution, outcome, result) with no gaps, it reads as generated. Real answers have emphases and omissions. Cover the 1-2 things that matter most; let the rest be implicit.
+
+4. **AI bridge phrases.** "Maps directly to what I built", "is the next step I want to take", "aligns with the team's mission", "would carry over to", "lines up perfectly with" -- all AI tells. Cut them.
+
+5. **Verbatim resume trophy display.** Award credits copy-pasted from resume bullets ("1st place, HackathonName (X,000+ participants)") sound copy-pasted. Integrate results naturally: "We won 1st." Full stop, no parenthetical.
+
+**What good form answers look like:**
+
+- Start partway into the story, not at the definition. "Most of the time went into X..." not "ProjectName was a project that built Y..."
+- Name a specific moment of struggle or failure. It makes the answer human and credible.
+- Use "we" for team projects, not "I built a project where the team..."
+- Mix short punchy sentences with longer ones. Uniform sentence rhythm is an AI tell.
+- Trust the reader. Don't explain every acronym. Don't close with a meta-observation about why the work is relevant -- let the connection be obvious from the specifics.
+- For "why join" answers: name the company's specific product or problem (shows you read the JD), state what you want in one direct sentence, add logistics only if relevant. No more than that.
+
+**Pre-flight check for form answers:** Read it aloud. If it sounds like a resume bullet expanded into sentences, rewrite. If it has more than two parentheticals, trim. If every sentence is roughly the same length, vary it.
+
 ---
 
 ## CI/CD and Quality
