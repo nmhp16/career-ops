@@ -13,8 +13,9 @@ This file accumulates your best interview stories over time. Each evaluation (Bl
 
 ## Stories
 
-<!-- Stories will be added here as you evaluate offers -->
-<!-- Format:
+Your personal stories live in `interview-prep/my-stories.md` (gitignored — never pushed).
+
+<!-- Template for my-stories.md:
 ### [Theme] Story Title
 **Source:** Report #NNN — Company — Role
 **S (Situation):** ...
