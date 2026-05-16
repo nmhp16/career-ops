@@ -278,6 +278,41 @@ search_queries:
     query: 'site:news.ycombinator.com OR site:hnrss.org "AI Engineer" OR "Forward Deployed" OR "DevRel" OR "Founding Engineer" remote'
     enabled: true
 
+  # -- Wellfound (AngelList) — startup-first job board --
+  - name: Wellfound — Robotics & Autonomy
+    query: 'site:wellfound.com/jobs "Robotics" OR "Autonomy" OR "Humanoid" Engineer'
+    enabled: true
+
+  - name: Wellfound — ML / AI New Grad
+    query: 'site:wellfound.com/jobs "Machine Learning" OR "AI Engineer" OR "Applied AI" "New Grad" OR "Entry Level" OR "Junior"'
+    enabled: true
+
+  - name: Wellfound — Computer Vision
+    query: 'site:wellfound.com/jobs "Computer Vision" OR "Perception" Engineer'
+    enabled: true
+
+  # -- VC portfolio job boards --
+  - name: a16z Portfolio Jobs
+    query: 'site:jobs.a16z.com "Software Engineer" OR "ML Engineer" OR "Robotics" OR "AI" "New Grad" OR "Entry" OR "Intern"'
+    enabled: true
+
+  - name: Sequoia Portfolio Jobs
+    query: 'site:careers.sequoiacap.com "Software Engineer" OR "ML" OR "Robotics" OR "AI" "New Grad" OR "Entry" OR "Intern"'
+    enabled: true
+
+  - name: Khosla Ventures Portfolio Jobs
+    query: '"khosla" portfolio jobs "Software Engineer" OR "ML Engineer" OR "Robotics" "New Grad" OR "Intern" 2026'
+    enabled: true
+
+  # -- Robotics-specific boards --
+  - name: Robohub Jobs
+    query: 'site:robohub.org/jobs "Software Engineer" OR "Robotics" OR "Computer Vision" OR "ML"'
+    enabled: true
+
+  - name: Pallet — AI & Robotics newsletters
+    query: 'site:pallet.com/jobs "Robotics" OR "Machine Learning" OR "AI Engineer" OR "Computer Vision"'
+    enabled: true
+
 # -- Tracked companies --
 # Companies whose career pages are checked directly.
 # scan_method: playwright (default), websearch, greenhouse_api
@@ -941,4 +976,136 @@ tracked_companies:
     scan_method: websearch
     scan_query: '"Maxim AI" OR "getmaxim" careers "engineer" OR "product"'
     notes: "AI evaluation and observability platform. Bangalore-based, mostly on-site."
+    enabled: true
+
+  # -- Embodied AI / Robot Learning --
+
+  - name: Physical Intelligence
+    careers_url: https://jobs.ashbyhq.com/physical-intelligence
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/physical-intelligence "Engineer" OR "Researcher"'
+    notes: "pi.ai — leading robot learning company. VLA, imitation learning."
+    enabled: true
+
+  - name: Intrinsic
+    careers_url: https://intrinsic.ai/careers
+    scan_method: websearch
+    scan_query: 'site:intrinsic.ai/careers "Engineer" OR "Intern"'
+    notes: "Google's robotics software subsidiary. ROS2, motion planning, manipulation."
+    enabled: true
+
+  - name: Machina Labs
+    careers_url: https://machinalabs.ai/careers
+    scan_method: websearch
+    scan_query: 'site:machinalabs.ai/careers "Engineer"'
+    notes: "AI-powered robotic metal forming. Manufacturing + robot learning."
+    enabled: true
+
+  - name: Serve Robotics
+    careers_url: https://job-boards.greenhouse.io/serverobotics
+    api: https://boards-api.greenhouse.io/v1/boards/serverobotics/jobs
+    notes: "Sidewalk delivery robots. Autonomy + perception."
+    enabled: true
+
+  - name: Viam Robotics
+    careers_url: https://www.viam.com/careers
+    scan_method: websearch
+    scan_query: 'site:viam.com/careers "Engineer" OR "Intern"'
+    notes: "Open robotics platform / SDK."
+    enabled: true
+
+  - name: Foxglove
+    careers_url: https://jobs.ashbyhq.com/foxglove
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/foxglove "Engineer"'
+    notes: "Robotics observability and dev tools (ROS2 visualization, logging)."
+    enabled: true
+
+  - name: Locus Robotics
+    careers_url: https://job-boards.greenhouse.io/locusrobotics
+    api: https://boards-api.greenhouse.io/v1/boards/locusrobotics/jobs
+    notes: "Warehouse AMRs. Autonomy + fleet management."
+    enabled: true
+
+  - name: Neura Robotics
+    careers_url: https://neura-robotics.com/careers
+    scan_method: websearch
+    scan_query: 'site:neura-robotics.com/careers "Engineer" OR "Intern"'
+    notes: "German humanoid robot company."
+    enabled: true
+
+  - name: Zoox
+    careers_url: https://zoox.com/careers/
+    scan_method: websearch
+    scan_query: 'site:zoox.com/careers "Engineer" "New Grad" OR "University" OR "Intern"'
+    notes: "Amazon's fully autonomous vehicle company."
+    enabled: true
+
+  - name: Mobileye
+    careers_url: https://mobileye.com/careers
+    scan_method: websearch
+    scan_query: 'site:mobileye.com/careers "Engineer" "New Grad" OR "Intern"'
+    notes: "Intel's AV chips and software. Perception and autonomy stack."
+    enabled: true
+
+  - name: May Mobility
+    careers_url: https://job-boards.greenhouse.io/maymobility
+    api: https://boards-api.greenhouse.io/v1/boards/maymobility/jobs
+    notes: "Autonomous vehicle company. Robotics + perception."
+    enabled: true
+
+  # -- AI Infrastructure --
+
+  - name: xAI
+    careers_url: https://x.ai/careers
+    scan_method: websearch
+    scan_query: 'site:x.ai/careers "Engineer" OR "Intern"'
+    notes: "Elon's AI company. Grok + Dojo supercomputer."
+    enabled: true
+
+  - name: Together AI
+    careers_url: https://jobs.ashbyhq.com/together-ai
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/together-ai "Engineer"'
+    notes: "Open-source AI model hosting and training infrastructure."
+    enabled: true
+
+  - name: Groq
+    careers_url: https://job-boards.greenhouse.io/groq
+    api: https://boards-api.greenhouse.io/v1/boards/groq/jobs
+    notes: "Ultra-fast LLM inference chips (LPU). AI infra."
+    enabled: true
+
+  - name: Cerebras
+    careers_url: https://cerebras.ai/careers
+    scan_method: websearch
+    scan_query: 'site:cerebras.ai/careers "Engineer" OR "Intern"'
+    notes: "Wafer-scale AI chip. Fast inference for robotics / edge AI."
+    enabled: true
+
+  - name: Modal Labs
+    careers_url: https://jobs.ashbyhq.com/modal-labs
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/modal-labs "Engineer"'
+    notes: "Serverless GPU compute for AI/ML workloads."
+    enabled: true
+
+  - name: Replicate
+    careers_url: https://jobs.ashbyhq.com/replicate
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/replicate "Engineer"'
+    notes: "ML model hosting platform."
+    enabled: true
+
+  - name: Fireworks AI
+    careers_url: https://job-boards.greenhouse.io/fireworksai
+    api: https://boards-api.greenhouse.io/v1/boards/fireworksai/jobs
+    notes: "Fast LLM inference and fine-tuning platform."
+    enabled: true
+
+  - name: Character.AI
+    careers_url: https://jobs.ashbyhq.com/character
+    scan_method: websearch
+    scan_query: 'site:jobs.ashbyhq.com/character "Engineer" OR "Intern"'
+    notes: "Large-scale conversational AI. Strong ML infra + RL."
     enabled: true
