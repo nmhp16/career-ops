@@ -14,7 +14,7 @@
  * Exit code: 0 if all active, 1 if any expired or uncertain
  */
 
-import { chromium } from 'playwright';
+import { chromium } from 'cloakbrowser';
 import { readFile } from 'fs/promises';
 import { classifyLiveness } from './lib/liveness.mjs';
 

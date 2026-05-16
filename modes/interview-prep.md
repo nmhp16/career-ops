@@ -6,7 +6,7 @@ When the user asks to prep for an interview at a specific company+role, or when 
 
 1. **Company name** and **role title** (required)
 2. **Evaluation report** in `reports/` (if exists) — read for archetype, gaps, matched proof points
-3. **Story bank** at `interview-prep/story-bank.md` — read for existing prepared stories
+3. **Story bank** at `interview-prep/my-stories.md` — read for existing prepared stories (gitignored, private)
 4. **CV** at `cv.md` + `article-digest.md` — read for proof points
 5. **Profile** at `config/profile.yml` + `modes/_profile.md` — read for candidate context
 
@@ -67,7 +67,7 @@ For each: the question, source, and what a strong answer looks like for this can
 
 ### Behavioral
 Questions about leadership, conflict, collaboration, failure.
-For each: the question, source, and which story from `story-bank.md` maps best.
+For each: the question, source, and which story from `my-stories.md` maps best.
 
 ### Role-Specific
 Questions tied to the specific job description (archetype-aware).
@@ -79,7 +79,7 @@ For each: the likely question, why it comes up, and a recommended framing (hones
 
 ## Step 5 — Story Bank Mapping
 
-| # | Likely question/topic | Best story from story-bank.md | Fit | Gap? |
+| # | Likely question/topic | Best story from my-stories.md | Fit | Gap? |
 |---|----------------------|-------------------------------|-----|------|
 | 1 | ... | [Story Title] | strong/partial/none | |
 
@@ -89,7 +89,7 @@ For each: the likely question, why it comes up, and a recommended framing (hones
 
 For each gap, suggest: "You need a story about {topic}. Consider: {specific experience from cv.md that could become a STAR+R story}."
 
-If the user wants to draft missing stories, help them build STAR+R format and append to `interview-prep/story-bank.md`.
+If the user wants to draft missing stories, help them build STAR+R format and append to `interview-prep/my-stories.md`.
 
 ## Step 6 — Technical Prep Checklist
 

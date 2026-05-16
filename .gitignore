@@ -43,3 +43,5 @@ career-dashboard
 package-lock.json
 .playwright-mcp/
 *.png
+interview-prep/*
+!interview-prep/story-bank.md
