@@ -277,7 +277,28 @@ Each bullet should read as: **action verb → artifact → mechanism (briefly, i
 
 - Lead with strong concrete verbs (Built, Designed, Wrote, Cached, Wired, Cut, Reduced, Indexed, Shipped)
 - Pack architecture/component details into parentheticals, not as the bullet's main payload
-- End each bullet on a concrete outcome: a metric, the scope of what it does, or what it enables in the system
+- End each bullet on a concrete **achieved** outcome: a metric, what actually happened, or what the system now does. Never end on a purpose statement.
+
+**Purpose statements (weak — describes intent, not result):**
+- "for fast per-task iteration" — says what it was FOR, not whether it worked
+- "enabling real-time scoring" — says what it enables, not that it achieved it
+- "for consistent multi-view image capture" — "consistent" is vague and unverified
+- "to support downstream analysis" — could describe any pipeline ever built
+
+**Achieved outcomes (strong — states what actually happened):**
+- "reaching a working policy per task in under 1 hour at ~30Hz inference"
+- "scoring long time-series in real time without GPU acceleration"
+- "producing aligned multi-view scans without manual repositioning between sessions"
+- "cutting ingest from 20 minutes to 5 minutes on a 3.5-minute clip"
+
+**The test:** replace the outcome clause with "...and it worked." If the sentence still makes the same claim, the outcome was a purpose statement. A real achieved outcome tells you something happened that the system did not do before.
+
+**Don't explain why something is hard — show it through what had to be built.** Subordinate "because" clauses that narrate the technical difficulty ("because the gripper must descend into the cavity and disengage cleanly") are interview talk, not resume style. The reader is expected to infer complexity from the technical choices made. Pack the hard part into a tight parenthetical or semicolon clause that states the constraint technically, not conversationally.
+
+- **Conversational (wrong):** "...requiring a separate template because the gripper descends into the jar cavity and must disengage cleanly"
+- **Resume style (right):** "...separate orientation-aware template (align/insert/retract; standard oracle cannot express the cavity-entry constraint)"
+
+The difference: the resume version states the constraint as a technical fact. The conversational version explains it to the reader like you're in an interview.
 
 **Bad (description style):**
 > "Designed a backend service organized as 5 modules (auth, billing, search, notifications, admin) over a layered controller-service-repository architecture, CORS-locked to specific origins, packaged for deployment with Docker and gunicorn."
@@ -285,12 +306,55 @@ Each bullet should read as: **action verb → artifact → mechanism (briefly, i
 **Good (resume style):**
 > "Built a production REST backend with a layered controller-service-repository architecture (5 modules, JWT-auth, Docker-packaged) that powers signup, billing, and search for ~100K active users."
 
+**Avoid LLM-favorite soft verbs.** Recruiters scanning resumes have read thousands of LLM-generated bullets and pattern-match these verbs as AI tells. The verbs themselves are not wrong, but their *combination with vague action descriptions* (the typical LLM output) is a fingerprint. Replace when the action is generic:
+
+| LLM-soft (avoid combo with vague action) | Direct alternative |
+|------------------------------------------|--------------------|
+| Engineered an X coordinating Y and Z | Built the [scheduler/sync layer/router] for Y and Z |
+| Implemented a system with three paths | Built / Wrote / Wired |
+| Developed policies for X | Trained policies for X (or wrote the trainer for X) |
+| Achieved smooth/stable/reliable X | Drop the adjective and state what actually happened (no jitter at 30Hz, no falls over N steps) |
+| Coordinated a team / Coordinated multi-X | Drove / Ran / Owned (state what was produced) |
+| Leveraged X to do Y | Used X to do Y |
+| Facilitated / Spearheaded | Ran / Led |
+| Optimized X | Cut X from A to B, Reduced X by N% |
+
+**Avoid vague verbs that hide what was built.** "Coordinating", "handling", "supporting", "managing", "leveraging" tell the reader something happened but not what code was written. A top engineer's resume names the artifact: "Wrote the scheduler that drives the camera trigger pulse" beats "Coordinating arm and camera capture."
+
+**Drop unmeasured subjective adjectives.** If you write "reliable", "smooth", "stable", "consistent", "robust", "working" — back it with a number or replace it with what actually happened. These adjectives without measurement are filler.
+
+- "reliable completion" → "X% success across N trials" OR state what happened ("no policy divergence over 50 rollouts")
+- "smooth real-time tracking" → "no visible jitter at ~30Hz" OR a measurement
+- "stable locomotion" → "walked N steps without falling" OR a duration
+- "working policy" → "X% task success" OR drop the adjective
+- "consistent multi-view capture" → "aligned scans without manual repositioning" (the lack of repositioning is the actual claim)
+
+If you can't quantify, replace the adjective with a *negative claim* (no jitter / no falls / no manual reset / no cloud calls) — that's still concrete.
+
+**Keep specific, memorable details.** A bullet with "walk, spin-attack, roundhouse-kick" sticks in the reader's memory better than "stable locomotion and dynamic motion references." When compressing, the named-things should survive over the generic adjectives.
+
+**Lead with the achievement, not the description.** Recruiters scan for outcomes — they don't read your bullet looking for the outcome at the end. Structure: `[verb-as-achievement] [artifact/result] (specs in parens) [+ outcome metric]`. Every clause should pull toward the achievement, not just describe what you built.
+
+- **Description-led (weak):** "Trained two ACT policies for contact-rich manipulation on an Epson T3-401 SCARA: pick-and-place (4-phase oracle) and jar insertion (custom orientation-aware oracle), running per-task inference at ~30Hz."
+  - The achievement (~30Hz inference, two tasks working) is at the end. The reader has to wade through technical setup to find it.
+- **Achievement-led (strong):** "Trained two contact-rich ACT manipulation policies on an Epson T3-401 SCARA, including a jar-insertion task my custom orientation-aware oracle solved when mimic's standard template couldn't express the cavity-entry constraint."
+  - The verb "Trained" + "policies" upfront is the achievement. The technical depth (custom oracle, cavity-entry constraint) is the mechanism, not the headline.
+
+**The dense-achievement pattern:** Top engineering resumes pack multiple achievements per bullet. Look for opportunities where each clause adds an achievement, not just description:
+- "Shipped X (achievement 1) that does Y (achievement 2) at Z metric (achievement 3), beating baseline W (achievement 4)."
+
+For research/ML/robotics work where formal evals don't exist (hobby projects, hackathons), the achievements are: a working system, a measurable metric (latency, throughput, model size, training time), a non-trivial technical decision (chose X over Y), and a comparison (vs default / vs baseline). Each clause should hit one of these — pure description is filler.
+
+**The "what's the achievement here" test:** For each clause in a bullet, ask "what did this clause achieve?" If it's just describing what exists or what was used, it's filler. If it states a measurable outcome, a working capability, or a technical decision with rationale, it's an achievement clause. Bullets should be ~75% achievement clauses, ~25% mechanism/setup.
+
 **Pre-flight check before `generate-pdf.mjs` runs.** For each bullet in EXPERIENCE_BLOCK and PROJECTS_BLOCK, ask:
-1. Does it start with an action verb?
-2. Does it have a concrete outcome at the end (metric, scope, what it enables)?
-3. Are architecture components in parens, not as the main clause?
-4. If you removed the parens, would the remaining sentence still claim something useful?
-5. **Within a single project or role, does every bullet cover a DIFFERENT aspect of the work?** Architecture, inputs, deployment, performance, eval, scaling, etc. should each get their own bullet. If two bullets reference the same controller / pipeline / model / metric / FSM from different angles, they're duplicates -- combine into one denser bullet, or rewrite the weaker one to cover a distinct dimension (e.g., move from "controller routed paths" to "input perception layer" or "on-device deployment").
+1. Does it start with a direct verb (Built / Wrote / Trained / Cut / Shipped / Designed / Wired / Hand-rolled) — not an LLM-soft verb (Engineered / Implemented / Achieved / Developed / Coordinated)?
+2. Does the verb name a specific engineering activity that the reader can picture, or is it vague ("coordinating", "handling", "supporting")?
+3. Does it end on an **achieved** outcome — not a purpose statement? ("for X" / "enabling X" / "to support X" at the end = fail this check.)
+4. Are there any unmeasured subjective adjectives ("reliable", "smooth", "stable", "consistent", "robust", "working") that should be replaced with a measurement or negative claim?
+5. Are architecture components in parens, not as the main clause?
+6. If you removed the parens, would the remaining sentence still claim something useful?
+7. **Within a single project or role, does every bullet cover a DIFFERENT aspect of the work?** Architecture, inputs, deployment, performance, eval, scaling, etc. should each get their own bullet. If two bullets reference the same controller / pipeline / model / metric / FSM from different angles, they're duplicates -- combine into one denser bullet, or rewrite the weaker one to cover a distinct dimension.
 
 If any answer is no, rewrite before generating.
 

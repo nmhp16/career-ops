@@ -24,7 +24,13 @@ Save the full evaluation in `reports/{###}-{company-slug}-{YYYY-MM-DD}.md` (see 
 Include Block G in the saved report. Add `**Legitimacy:** {tier}` to the report header.
 
 ## Step 3 -- Generate the PDF
-Read `config/profile.yml`. Check `cv.output_format`:
+
+**Before running the PDF pipeline**, re-read the report you saved in Step 2 and extract Block E (Personalization Plan):
+- Note every proposed change in the Block E table
+- The summary row is mandatory: use it as the `{{SUMMARY_SECTION}}` content
+- Every bullet rewrite, keyword injection, or project selection in Block E must be implemented in the HTML — not approximated, not skipped
+
+Then read `config/profile.yml`. Check `cv.output_format`:
 
 - If `"latex"`, run the full pipeline from `modes/latex.md`
 - Otherwise (default), run the full pipeline from `modes/pdf.md`

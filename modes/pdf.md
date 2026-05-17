@@ -2,14 +2,15 @@
 
 ## Full Pipeline
 
-1. Read `cv.md` as source of truth
+1. Read `cv.md` and `modes/_profile.md` as source of truth. The tailoring rules in `_profile.md` (mandatory summary, project-to-role mapping, bullet-level mapping, intern cap) override the defaults in this file wherever they conflict.
+1a. **If this PDF is being generated as part of auto-pipeline**, re-read the evaluation report that was just saved (Block E — Personalization Plan) and implement EVERY item in the plan before writing a single line of HTML. Block E is the contract. Never skip it.
 2. Ask the user for the JD if not already provided (text or URL)
 3. Extract 15-20 keywords from the JD
 4. Detect JD language -> CV language (EN default)
 5. Detect company location -> paper format:
    - US/Canada -> `letter`
    - Rest of world -> `a4`
-6. Detect role archetype -> adapt framing
+6. Detect role archetype -> adapt framing per `_profile.md` "Your Adaptive Framing" table
 7. Select top 3-4 most relevant projects for the JD
 8. Reorder experience bullets by JD relevance
 9. Inject JD keywords naturally into skills, experience, and projects (NEVER invent)
@@ -29,8 +30,10 @@
    - Does any number feel hedged ("30 to 60 minutes," "scaled from X to Y") that should commit to a single value or drop?
    - Are project headers still aligned with the bullets below them (the meta tagline matches the focus of the work)?
    - Is the resume tone consistent with the candidate's actual voice, or has it drifted into generated-feeling phrasing?
+   - **Backtick check:** Does any bullet contain backtick-wrapped names (e.g., `` `pick_plant_out` ``, `` `arm-act` ``)? Strip all backticks — render them as plain text. Backticks are Markdown syntax; they appear as literal characters in HTML and break ATS parsing.
+   - **Verb tense consistency:** Current role bullets → present tense. Past roles and completed projects → past tense. Mixed tense in a single block is an ATS parse risk.
    - **If any answer is "no," fix the HTML and rerun. Do not ship until both the script AND your own re-read are clean.**
-15. Report: PDF path, page count, scale, content_warnings count, and whether any auto-corrections were applied.
+15. Report: PDF path, page count, scale, content_warnings count, keyword coverage (X/Y), and whether any auto-corrections were applied.
 
 ## ATS Rules (clean parsing)
 
@@ -42,6 +45,7 @@
 - UTF-8, selectable text (not rasterized)
 - No nested tables
 - Distribute JD keywords across Skills, first Experience bullet, and Project bullets
+- **Title mirroring:** The summary's first sentence should echo the JD's role title or its closest equivalent. If JD says "Robotics Engineering Intern," the summary should open with that framing — ATS parsers use title proximity to weight keyword relevance.
 - **Default**: keep CV to 1 page using PDF auto-fit scale if content overflows
 - Use `--allow-multipage` in `generate-pdf.mjs` for exceptional multi-page output
 
@@ -65,12 +69,25 @@
 
 ## Keyword Injection Strategy (ethical, truth-based)
 
+**Priority rule: exact JD phrase > semantic equivalent > synonym.** ATS systems weight exact phrase matches higher than semantic matches. When both are truthful, always use the JD's exact wording.
+- JD says "imitation learning" → write "imitation learning," not "IL" or "behavior cloning"
+- JD says "real-time inference" → write "real-time inference," not "low-latency execution"
+- JD says "foundation models" → write "foundation models," not "large pretrained models"
+
+**Placement weighting (ATS scores by section position):**
+1. Summary (highest weight) — front-load 3-5 of the most JD-critical keywords in the first sentence
+2. Skills section — include every JD tool/language the candidate genuinely knows
+3. Experience bullets — inject into the first bullet of the most relevant role
+4. Project bullets — use exact JD phrasing where it fits truthfully
+
 Valid rewrite examples:
-- JD says "RAG pipelines" and CV says "LLM workflows with retrieval" -> rewrite as "RAG pipeline design and LLM orchestration workflows"
-- JD says "MLOps" and CV says "observability, evals, error handling" -> rewrite as "MLOps and observability: evals, error handling, cost monitoring"
-- JD says "stakeholder management" and CV says "collaborated with team" -> rewrite as "stakeholder management across engineering, operations, and business"
+- JD says "RAG pipelines" and CV says "LLM workflows with retrieval" → rewrite as "RAG pipeline design and LLM orchestration workflows"
+- JD says "MLOps" and CV says "observability, evals, error handling" → rewrite as "MLOps and observability: evals, error handling, cost monitoring"
+- JD says "data collection pipeline" and CV says "data acquisition system" → rewrite as "data collection pipeline"
 
 **NEVER add skills the candidate does not have. Only rewrite real experience using JD language.**
+
+**Post-injection coverage check (mandatory before writing HTML):** After drafting all content, list the 15-20 extracted JD keywords and confirm each appears at least once in the document. For any missing keyword the candidate genuinely has: inject into Skills. For any missing keyword the candidate does not have: leave out. Report coverage as "X/Y JD keywords covered" in the final output.
 
 ## HTML Template
 
@@ -89,6 +106,7 @@ Use `cv-template.html` and replace placeholders `{{...}}` with tailored content:
 | `{{LINKEDIN_URL}}` | from profile.yml |
 | `{{LINKEDIN_DISPLAY}}` | from profile.yml |
 | `{{LOCATION}}` | from profile.yml |
+| `{{SUMMARY_SECTION}}` | Tailored professional summary HTML block when the fit isn't obvious from the projects alone; empty string when projects speak for themselves. See `_profile.md` "Tailored summary" for the decision rule and HTML format. |
 | `{{DEGREE}}` | degree line from cv.md |
 | `{{GRAD_DATE}}` | graduation date |
 | `{{UNIVERSITY}}` | school name |

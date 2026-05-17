@@ -25,7 +25,7 @@
  *   - Errors fail the build (exit 3); warnings print and continue.
  */
 
-import { chromium } from 'cloakbrowser';
+import { chromium } from 'playwright';
 import { resolve, dirname } from 'path';
 import { readFile } from 'fs/promises';
 import { fileURLToPath } from 'url';
