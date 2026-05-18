@@ -242,3 +242,141 @@ Scan the personalized HTML for any of:
 - Closing phrases starting with "demonstrating," "showcasing," "establishing," "leveraging," "highlighting"
 
 If any are present, fix the HTML first, then rerun the generator.
+
+---
+
+## Resume & Cover Letter Quality
+
+### Resume bullets must read resume-style, not description-style
+
+Each bullet should read as: **action verb → artifact → mechanism (briefly, in parens) → concrete outcome.**
+
+- Lead with strong concrete verbs (Built, Designed, Wrote, Cached, Wired, Cut, Reduced, Indexed, Shipped)
+- Pack architecture/component details into parentheticals, not as the bullet's main payload
+- End each bullet on a concrete **achieved** outcome: a metric, what actually happened, or what the system now does. Never end on a purpose statement.
+
+**Purpose statements (weak — describes intent, not result):**
+- "for fast per-task iteration" — says what it was FOR, not whether it worked
+- "enabling real-time scoring" — says what it enables, not that it achieved it
+- "for consistent multi-view image capture" — "consistent" is vague and unverified
+- "to support downstream analysis" — could describe any pipeline ever built
+
+**Achieved outcomes (strong — states what actually happened):**
+- "reaching a working policy per task in under 1 hour at ~30Hz inference"
+- "scoring long time-series in real time without GPU acceleration"
+- "producing aligned multi-view scans without manual repositioning between sessions"
+- "cutting ingest from 20 minutes to 5 minutes on a 3.5-minute clip"
+
+**The test:** replace the outcome clause with "...and it worked." If the sentence still makes the same claim, the outcome was a purpose statement. A real achieved outcome tells you something happened that the system did not do before.
+
+**Don't explain why something is hard — show it through what had to be built.** Pack the hard part into a tight parenthetical or semicolon clause that states the constraint technically, not conversationally.
+
+- **Conversational (wrong):** "...requiring a separate template because the gripper descends into the jar cavity and must disengage cleanly"
+- **Resume style (right):** "...separate orientation-aware template (align/insert/retract; standard oracle cannot express the cavity-entry constraint)"
+
+**Avoid LLM-favorite soft verbs.** Replace when the action is generic:
+
+| LLM-soft (avoid combo with vague action) | Direct alternative |
+|------------------------------------------|--------------------|
+| Engineered an X coordinating Y and Z | Built the [scheduler/sync layer/router] for Y and Z |
+| Implemented a system with three paths | Built / Wrote / Wired |
+| Developed policies for X | Trained policies for X (or wrote the trainer for X) |
+| Achieved smooth/stable/reliable X | Drop the adjective and state what actually happened |
+| Coordinated a team / Coordinated multi-X | Drove / Ran / Owned (state what was produced) |
+| Leveraged X to do Y | Used X to do Y |
+| Facilitated / Spearheaded | Ran / Led |
+| Optimized X | Cut X from A to B, Reduced X by N% |
+
+**Drop unmeasured subjective adjectives.** If you write "reliable", "smooth", "stable", "consistent", "robust", "working" — back it with a number or replace it with what actually happened. If you can't quantify, replace with a *negative claim* (no jitter / no falls / no manual reset / no cloud calls).
+
+**Lead with the achievement, not the description.** Structure: `[verb-as-achievement] [artifact/result] (specs in parens) [+ outcome metric]`.
+
+**Pre-flight check before `generate-pdf.mjs` runs.** For each bullet in EXPERIENCE_BLOCK and PROJECTS_BLOCK, ask:
+1. Does it start with a direct verb (Built / Wrote / Trained / Cut / Shipped / Designed / Wired / Hand-rolled) — not an LLM-soft verb?
+2. Does it end on an **achieved** outcome — not a purpose statement? ("for X" / "enabling X" / "to support X" at the end = fail.)
+3. Are there unmeasured subjective adjectives that should be replaced with a measurement or negative claim?
+4. Are architecture components in parens, not as the main clause?
+5. Within a single project or role, does every bullet cover a DIFFERENT aspect? If two bullets reference the same artifact from different angles, combine into one denser bullet.
+
+### Action verbs must not repeat across bullets
+
+Every bullet on a tailored PDF starts with a unique action verb. No verb appears twice anywhere in the document.
+
+**How to apply:** Before generating the PDF, list every bullet's opening verb. If any verb appears more than once, swap to one of: Engineered, Designed, Shipped, Wired, Implemented, Authored, Wrote, Scaled, Developed, Integrated, Bridged, Closed, Drove, Cut, Trained, Validated, Compiled, Ported, Optimized, Hand-rolled.
+
+### Cap bullet density at 4 comma-separated components
+
+A bullet listing "with X, Y, Z, W, and V" reads as draggy past 4 items. Trim to the 4 most distinctive and drop the most generic (the one a knowledgeable reader would assume by default).
+
+### Don't list every API/backend/library by name
+
+Name the category, not the roster. "multi-backend company discovery" beats "(Nominatim, DuckDuckGo, BBB, OpenCorporates)". **Exception:** when ONE specific source is the differentiator, keep that single name.
+
+### Strip padding phrases from bullets
+
+Drop without replacement: "end-to-end", "from scratch" (when verb already implies it), "in production" (when delivery context is clear), "best-in-class", "high-performance" (without a noun), "streamlined", "robust", "next-generation".
+
+### Cap internship workstreams at 2 bullets per role
+
+A short-tenure internship (less than 6 months) gets at most 2 bullets on a tailored PDF. Pick (a) the headline metric/result bullet and (b) the strongest signal for the role's archetype. Drop secondary workstreams. The full list stays on `cv.md`. For full-time or longer-tenure roles, this cap doesn't apply — 3-5 bullets is fine.
+
+### Project selection matches reviewer audience (3 axes, not 2)
+
+A project's value on a tailored CV depends on three axes:
+1. **Technical fit** with the JD's stack
+2. **Domain fit** with the company's space
+3. **Reviewer comprehension** — does the reader understand the value without Googling?
+
+If a project nails (2) but fails (3), drop it. **Heuristic:** If a non-domain reviewer would have to Google three or more specialized terms in a single bullet, the project is wrong for that audience.
+
+**Bullet-level audience match:** The same project should not surface the same bullets to every audience. Rewrite or replace bullets to match the reviewer. The user's specific project-to-role mappings live in `modes/_profile.md` under "Your Tailoring Rules".
+
+### Cover letter tone scales with candidate seniority
+
+| Seniority | Posture | Example phrasings |
+|-----------|---------|-------------------|
+| New-grad / Intern / Junior (≤1 YOE) | **Student-eager**: humble, curious, learning-oriented | "lines up with side projects I've been working on"; "would love to contribute and learn" |
+| Mid-level (2-5 YOE) | **Confident peer**: shows fit + interest, no hard sell | "this matches the kind of work I've been doing"; "happy to dig in on Y from day one" |
+| Senior+ / Multi-offer (5+ YOE) | **"I'm choosing you"**: selective, options-having | "I've been intentional about finding a team where I can contribute" |
+
+Don't apply senior-level framing to junior/intern apps — it reads as cocky. The candidate's default seniority is set in `modes/_profile.md` under "Your Tailoring Rules".
+
+### Cover letter prose != resume bullet style
+
+Cover letters need narrative flow, not resume-density. Patterns to avoid:
+
+1. **Resume-bullet-stuffed-into-sentence.** Limit parentheticals to 1-2 specs max. Move technical depth to the resume.
+2. **Quoting JD marketing copy verbatim.** Pick at most one JD phrase to anchor; replace others with concrete observations.
+3. **Topic-header colons in body paragraphs.** "On the AI-native side:" — drop the headers; let paragraphs flow.
+4. **Repetitive paragraph architecture.** Vary sentence length and structure across paragraphs.
+5. **Vague transferable bridges.** "Would carry over to X" — name one concrete thing the work would help with.
+6. **Restating across paragraphs.** Cover letters should be 4-5 paragraphs of distinct content.
+
+**Strong human signals to keep:**
+- Direct admissions of gaps ("I'll be honest about X. I haven't done Y yet.")
+- Conversational logistics framing ("My internship wraps in May, so...")
+- "The interesting part wasn't X, it was Y" style
+- One unexpected detail per project that grounds it
+
+**Calibrate to candidate voice.** Some candidates write in a reserved, factual style and don't naturally use enthusiasm closers. For reserved candidates, drop those moves entirely and use a neutral close ("Thank you for considering my application"). Candidate-specific voice calibration lives in `modes/_profile.md` under "Your Tailoring Rules".
+
+### Application form short-answer questions
+
+Form answers are NOT cover letter paragraphs and NOT resume bullets.
+
+**AI tells to never do:**
+1. **Em-dashes anywhere.** Replace with a period, colon, semicolon, or comma.
+2. **Definition-then-detail structure.** Start with the hard part or a specific moment, not a project definition.
+3. **Perfect coverage.** Real answers have emphases and omissions. Cover the 1-2 things that matter most.
+4. **AI bridge phrases.** "Maps directly to what I built", "is the next step I want to take", "aligns with the team's mission" — cut them.
+5. **Verbatim resume trophy display.** "We won 1st." Full stop, no parenthetical.
+6. **Architecture-first opens.** Start with the observable output: "Built a system that lets [person] do [thing]" — then name the mechanism.
+
+**What good form answers look like:**
+- Lead with what the system does, not the architecture.
+- Show your specific contribution in team projects ("I handled the IK stack").
+- Mix short punchy sentences with longer ones.
+- For "why join": read the JD first, anchor to a specific past project, reword JD values in your own engineering language (don't paraphrase verbatim), no gap admissions.
+- **"Why join" structure (4-5 sentences):** (1) one-line context on what you've been doing, (2) the specific sub-problem you cared about most, (3) name the company's product and connect it to that sub-problem, (4) optional interest statement, (5) logistics if needed.
+
+**Pre-flight check:** Read it aloud. If it sounds like a resume bullet expanded into sentences, rewrite. If it has more than two parentheticals, trim. If every sentence is the same length, vary it.
